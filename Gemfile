@@ -16,9 +16,7 @@ if File.exist?(local_rails)
     gem "activerecord"
   end
 else
-  git "https://github.com/rails/rails.git" do
-    gem "activerecord"
-  end
+  gem "activerecord"
 end
 
 local_adbc = File.expand_path(File.join(__dir__, "..", "arrow-adbc"))
@@ -27,7 +25,5 @@ if File.exist?(local_adbc)
     gem "red-adbc"
   end
 else
-  git "https://github.com/apache/arrow-adbc.git" do
-    gem "red-adbc"
-  end
+  gem "red-adbc"
 end
