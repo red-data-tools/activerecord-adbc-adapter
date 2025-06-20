@@ -1,6 +1,6 @@
 require "tempfile"
 
-require "active_record"
+require "activerecord-adbc-adapter"
 require "test-unit"
 
 require_relative "helper/user"
