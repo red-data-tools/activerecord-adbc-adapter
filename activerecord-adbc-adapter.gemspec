@@ -1,7 +1,5 @@
 # -*- ruby -*-
 
-require "fileutils"
-
 require_relative "lib/activerecord-adbc-adapter/version"
 
 Gem::Specification.new do |spec|
@@ -24,5 +22,5 @@ Gem::Specification.new do |spec|
   spec.files += Dir.glob("lib/**/*.rb")
 
   spec.add_runtime_dependency("activerecord")
-  spec.add_runtime_dependency("red-arrow")
+  spec.add_runtime_dependency("red-adbc")
 end
