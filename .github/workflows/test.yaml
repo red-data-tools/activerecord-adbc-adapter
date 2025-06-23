@@ -35,6 +35,9 @@ jobs:
       - name: Install dependencies
         run: |
           MAKEFLAGS="-j$(nproc)" bundle install --jobs=$(nproc)
+      - name: Install test dependencies
+        run: |
+          sudo apt install -y -V libadbc-driver-sqlite-dev
       - name: Test
         run: |
           bundle exec rake
