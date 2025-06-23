@@ -149,16 +149,11 @@ module ActiveRecord
 
         private
         def get_objects(*args)
-          c_abi_array_stream = @connection.get_objects(*args)
+          reader = @connection.get_objects(*args)
           begin
-            reader = Arrow::RecordBatchReader.import(c_abi_array_stream)
-            begin
-              yield(reader.read_all)
-            ensure
-              reader.unref
-            end
+            yield(reader.read_all)
           ensure
-            GLib.free(c_abi_array_stream)
+            reader.unref
           end
         end
       end
