@@ -2,6 +2,7 @@ require "adbc"
 
 require "active_record/connection_adapters/adbc/column"
 require "active_record/connection_adapters/adbc/database_statements"
+require "active_record/connection_adapters/adbc/quoting"
 require "active_record/connection_adapters/adbc/schema_statements"
 
 module ActiveRecord
@@ -173,6 +174,7 @@ module ActiveRecord
       end
 
       include ADBC::DatabaseStatements
+      include ADBC::Quoting
       include ADBC::SchemaStatements
 
       def initialize(...)
