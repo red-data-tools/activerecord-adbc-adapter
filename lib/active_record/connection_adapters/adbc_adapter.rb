@@ -34,11 +34,11 @@ module ActiveRecord
         end
 
         def columns
-          @columns ||= @table.schema.fields.collect(&:name)
+          @columns ||= fields.collect(&:name)
         end
 
         def column_types
-          @column_types ||= @table.schema.fields.inject({}) do |types, field|
+          @column_types ||= fields.inject({}) do |types, field|
             types[field.name] = resolve_type(field.data_type)
             types
           end
@@ -64,7 +64,15 @@ module ActiveRecord
           end
         end
 
+        def indexed_rows
+          @indexed_rows ||= to_a
+        end
+
         private
+        def fields
+          @fields ||= @table.schema.fields
+        end
+
         def resolve_type(data_type)
           case data_type
           when Arrow::Int32DataType
