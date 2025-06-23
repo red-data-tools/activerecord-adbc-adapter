@@ -29,7 +29,12 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby-version }}
-          bundler-cache: true
+      # We can't use "bundler-cache: true" with ruby/setup-ruby
+      # because it doesn't cache dependencies installed by
+      # rubygems-requirements-system automatically.
+      - name: Install dependencies
+        run: |
+          MAKEFLAGS="-j$(nproc)" bundle install --jobs=$(nproc)
       - name: Test
         run: |
           bundle exec rake
