@@ -3,7 +3,11 @@ class TestModel < Test::Unit::TestCase
 
   setup do
     ActiveRecord::Base.connection.create_table("users")
-    run_sql("INSERT INTO users VALUES (1), (2), (3)")
+    User.insert_all([
+                      {id: 1},
+                      {id: 2},
+                      {id: 3},
+                    ])
   end
 
   def test_first
