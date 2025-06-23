@@ -25,7 +25,6 @@ module ActiveRecord
           ADBC::Column.new(field["column_name"],
                            field["xdbc_column_def"],
                            nil,
-                           nil,
                            field["xdbc_nullable"] == 1,
                            nil,
                            collation: nil,
