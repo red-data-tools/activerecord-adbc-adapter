@@ -21,9 +21,10 @@ module ActiveRecord
         end
 
         private
-        def new_column_from_field(table_name, field)
+        def new_column_from_field(table_name, field, definitions)
           ADBC::Column.new(field["column_name"],
                            field["xdbc_column_def"],
+                           nil,
                            nil,
                            field["xdbc_nullable"] == 1,
                            nil,
