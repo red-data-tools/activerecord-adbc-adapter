@@ -23,6 +23,10 @@ module ActiveRecord
           columns.include?(name)
         end
 
+        def rows
+          @rows ||= @table.raw_records
+        end
+
         def length
           @table.length
         end
