@@ -50,19 +50,8 @@ module ActiveRecord
           end
         end
 
-        def query(sql, binds)
-          @connection.open_statement do |statement|
-            statement.sql_query = sql
-            if binds.empty?
-              statement.execute[0]
-            else
-              statement.prepare
-              table = Arrow::Table.new(limit: binds)
-              statement.bind(table) do
-                statement.execute[0]
-              end
-            end
-          end
+        def open_statement(&block)
+          @connection.open_statement(&block)
         end
 
         def tables
