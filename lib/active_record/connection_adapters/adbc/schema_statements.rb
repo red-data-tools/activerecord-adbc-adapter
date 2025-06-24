@@ -2,6 +2,16 @@ module ActiveRecord
   module ConnectionAdapters
     module ADBC
       module SchemaStatements
+        NATIVE_DATABASE_TYPES = {
+          "sqlite" => {
+            primary_key: "integer PRIMARY KEY AUTOINCREMENT NOT NULL",
+          },
+        }
+
+        def native_database_types
+          NATIVE_DATABASE_TYPES[backend] || super
+        end
+
         def tables
           with_raw_connection do |conn|
             conn.tables
