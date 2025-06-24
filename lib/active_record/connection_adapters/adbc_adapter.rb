@@ -129,6 +129,20 @@ module ActiveRecord
         end
       end
 
+      def connect
+        @raw_connection = self.class.new_client(@connection_parameters)
+        detect_features
+        @raw_connection
+      end
+
+      def reconnect
+        @lock.synchronize do
+          @raw_connection&.reconnect
+        end
+
+        connect unless @raw_connection
+      end
+
       def active?
         @lock.synchronize do
           return false unless @raw_connection
@@ -170,14 +184,11 @@ module ActiveRecord
       end
 
       private
-      def connect
-        @raw_connection = self.class.new_client(@connection_parameters)
-        detect_features
-        @raw_connection
+      def backend
+        @connection_parameters[:driver].gsub(/\Aadbc_driver_/, "")
       end
 
       def detect_features
-        backend = @connection_parameters[:driver].gsub(/\Aadbc_driver_/, "")
         detect_features_method = "detect_features_#{backend}"
         if respond_to?(detect_features_method, true)
           __send__(detect_features_method)
@@ -186,14 +197,6 @@ module ActiveRecord
 
       def detect_features_sqlite
         @features[:supports_insert_on_duplicate_skip] = true
-      end
-
-      def reconnect
-        @lock.synchronize do
-          @raw_connection&.reconnect
-        end
-
-        connect unless @raw_connection
       end
     end
     ActiveSupport.run_load_hooks(:active_record_adbcadapter, ADBCAdapter)
