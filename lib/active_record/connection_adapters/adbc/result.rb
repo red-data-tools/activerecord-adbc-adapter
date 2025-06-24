@@ -58,6 +58,8 @@ module ActiveRecord
             Type::Integer.new(limit: 4)
           when Arrow::Int64DataType
             Type::Integer.new(limit: 8)
+          when Arrow::StringDataType
+            Type::String.new
           else
             raise "Unknown: #{data_type.inspect}"
           end
