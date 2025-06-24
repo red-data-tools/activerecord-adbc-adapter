@@ -44,6 +44,7 @@ module Helper
         begin
           yield
         ensure
+          User.reset_column_information
           ActiveRecord::Base.connection_handler.clear_all_connections!
         end
       end
