@@ -38,7 +38,7 @@ module ActiveRecord
         def each(&block)
           return to_enum(__method__) unless block_given?
 
-          @table.raw_records.each do |record|
+          rows.each do |record|
             yield(Hash[@columns.zip(record)])
           end
         end
