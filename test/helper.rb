@@ -5,6 +5,10 @@ require "test-unit"
 
 require_relative "helper/user"
 
+if ENV["ACTIVERECORD_ADBC_ADAPTER_DEBUG"] == "yes"
+  ActiveRecord::Base.logger = ActiveSupport::Logger.new(STDERR)
+end
+
 module Helper
   module Sandbox
     class << self
