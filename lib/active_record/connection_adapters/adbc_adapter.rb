@@ -144,12 +144,6 @@ module ActiveRecord
         end
       end
 
-      def column_definitions(table_name)
-        with_raw_connection do |conn|
-          conn.column_definitions(table_name)
-        end
-      end
-
       # Borrowed from
       # ActiveRecord::ConnectionAdapters::PostgreSQLAdapter#build_insert_sql.
       #

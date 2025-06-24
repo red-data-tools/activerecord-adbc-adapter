@@ -20,6 +20,12 @@ module ActiveRecord
           end
         end
 
+        def column_definitions(table_name)
+          with_raw_connection do |conn|
+            conn.column_definitions(table_name)
+          end
+        end
+
         private
         def new_column_from_field(table_name, field, definitions)
           ADBC::Column.new(field["column_name"],
