@@ -30,6 +30,22 @@ module ActiveRecord
         def cast_result(raw_result)
           Result.new(raw_result)
         end
+
+        # Borrowed from
+        # ActiveRecord::ConnectionAdapters::PostgreSQL::DatabaseStatements.
+        #
+        # Copyright (c) David Heinemeier Hansson
+        #
+        # The MIT license.
+        READ_QUERY = AbstractAdapter.build_read_query_regexp(
+          :close, :declare, :fetch, :move, :set, :show
+        ) #:nodoc:
+        private_constant :READ_QUERY
+        def write_query?(sql) # :nodoc:
+          !READ_QUERY.match?(sql)
+        rescue ArgumentError # Invalid encoding
+          !READ_QUERY.match?(sql.b)
+        end
       end
     end
   end
