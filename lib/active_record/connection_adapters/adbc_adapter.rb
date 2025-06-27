@@ -55,40 +55,6 @@ module ActiveRecord
           @connection.open_statement(&block)
         end
 
-        def tables
-          get_objects(:tables, nil, nil, nil, ["table"]) do |table|
-            table.raw_records[0][1][0]["db_schema_tables"].collect do |table|
-              table["table_name"]
-            end
-          end
-        end
-
-        def views
-          get_objects(:tables, nil, nil, nil, ["view"]) do |table|
-            table.raw_records[0][1][0]["db_schema_tables"].collect do |table|
-              table["table_name"]
-            end
-          end
-        end
-
-        def column_definitions(table_name)
-          get_objects(:all, nil, nil, table_name) do |table|
-            table.raw_records[0][1][0]["db_schema_tables"][0]["table_columns"]
-          end
-        end
-
-        def primary_keys(table_name)
-          get_objects(:all, nil, nil, table_name) do |table|
-            table = table.raw_records[0][1][0]["db_schema_tables"][0]
-            constraint = table["table_constraints"].find do |constraint|
-              constraint["constraint_type"] == "PRIMARY KEY"
-            end
-            return [] if constraint.nil?
-            constraint["constraint_column_names"] || []
-          end
-        end
-
-        private
         def get_objects(*args)
           reader = @connection.get_objects(*args)
           begin
@@ -194,6 +160,10 @@ module ActiveRecord
         if respond_to?(detect_features_method, true)
           __send__(detect_features_method)
         end
+      end
+
+      def detect_features_duckdb
+        @features[:supports_insert_on_duplicate_skip] = true
       end
 
       def detect_features_sqlite

@@ -36,11 +36,26 @@ module Helper
     end
 
     def setup_connection
-      Tempfile.create(["activerecord-adbc-adapter", ".sqlite3"]) do |db_file|
+      case ENV["ACTIVERECORD_ADBC_ADAPTER_BACKEND"]
+      when "duckdb"
+        suffix = ".duckdb"
+        path_key = :path
+        options = {
+          driver: "duckdb",
+          entrypoint: "duckdb_adbc_init",
+        }
+      else
+        suffix = ".sqlite3"
+        path_key = :uri
+        options = {
+          driver: "adbc_driver_sqlite",
+        }
+      end
+      Tempfile.create(["activerecord-adbc-adapter", suffix]) do |db_file|
         @db_path = db_file.path
-        ActiveRecord::Base.establish_connection(adapter: "adbc",
-                                                driver: "adbc_driver_sqlite",
-                                                uri: @db_path)
+        FileUtils.rm_f(@db_path)
+        options[path_key] = @db_path
+        ActiveRecord::Base.establish_connection(adapter: "adbc", **options)
         begin
           yield
         ensure
