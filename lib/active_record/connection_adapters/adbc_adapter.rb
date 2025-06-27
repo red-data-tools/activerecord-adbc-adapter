@@ -1,10 +1,11 @@
 require "adbc"
 
-require "active_record/connection_adapters/adbc/column"
-require "active_record/connection_adapters/adbc/database_statements"
-require "active_record/connection_adapters/adbc/quoting"
-require "active_record/connection_adapters/adbc/result"
-require "active_record/connection_adapters/adbc/schema_statements"
+require_relative "adbc/column"
+require_relative "adbc/database_statements"
+require_relative "adbc/quoting"
+require_relative "adbc/result"
+require_relative "adbc/schema_definitions"
+require_relative "adbc/schema_statements"
 
 module ActiveRecord
   module ConnectionHandling # :nodoc:
