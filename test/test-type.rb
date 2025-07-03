@@ -5,7 +5,7 @@ class TestType < Test::Unit::TestCase
     ActiveRecord::Base.connection.create_table("users") do |table|
       table.column :integer, :integer
     end
-    User.create!(id: 1, integer: 1)
+    User.create!(integer: 1)
     assert_equal(User.new(id: 1, integer: 1),
                  User.first)
   end

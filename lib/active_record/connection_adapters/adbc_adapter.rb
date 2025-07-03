@@ -4,6 +4,7 @@ require_relative "adbc/column"
 require_relative "adbc/database_statements"
 require_relative "adbc/quoting"
 require_relative "adbc/result"
+require_relative "adbc/schema_creation"
 require_relative "adbc/schema_definitions"
 require_relative "adbc/schema_statements"
 
@@ -150,11 +151,11 @@ module ActiveRecord
         sql
       end
 
-      private
       def backend
         @connection_parameters[:driver].gsub(/\Aadbc_driver_/, "")
       end
 
+      private
       def detect_features
         detect_features_method = "detect_features_#{backend}"
         if respond_to?(detect_features_method, true)

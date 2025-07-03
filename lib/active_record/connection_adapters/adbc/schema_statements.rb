@@ -155,6 +155,10 @@ module ActiveRecord
           ADBC::TableDefinition.new(self, name, **options)
         end
 
+        def schema_creation
+          ADBC::SchemaCreation.new(self)
+        end
+
         def new_column_from_field(table_name, field, definitions)
           ADBC::Column.new(field["column_name"],
                            field["xdbc_column_def"],
