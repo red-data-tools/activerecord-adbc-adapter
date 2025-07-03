@@ -2,8 +2,8 @@ module ActiveRecordADBCAdapter
   class Result
     include Enumerable
 
-    def initialize(table)
-      @table = table
+    def initialize(record_batch_reader)
+      @record_batch_reader = record_batch_reader
     end
 
     def columns
@@ -22,11 +22,11 @@ module ActiveRecordADBCAdapter
     end
 
     def rows
-      @rows ||= @table.raw_records
+      @rows ||= to_arrow.raw_records
     end
 
     def length
-      @table.length
+      to_arrow.length
     end
 
     def empty?
@@ -45,9 +45,23 @@ module ActiveRecordADBCAdapter
       @indexed_rows ||= to_a
     end
 
+    def to_arrow
+      @table ||= @record_batch_reader.read_all
+    end
+
+    def each_record_batch
+      return to_enum(__method__) unless block_given?
+
+      loop do
+        record_batch = @record_batch_reader.read_next
+        break if record_batch.nil?
+        yield(record_batch)
+      end
+    end
+
     private
     def fields
-      @fields ||= @table.schema.fields
+      @fields ||= @record_batch_reader.schema.fields
     end
 
     def resolve_type(data_type)

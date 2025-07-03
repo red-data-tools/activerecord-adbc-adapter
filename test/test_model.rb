@@ -45,4 +45,30 @@ class TestModel < Test::Unit::TestCase
                    User.select(:id).all)
     end
   end
+
+  sub_test_case("#to_arrow") do
+    def test_model
+      assert_equal(Arrow::Table.new(id: Arrow::Int64Array.new([1, 2, 3])),
+                   User.to_arrow)
+    end
+
+    def test_relation
+      assert_equal(Arrow::Table.new(id: Arrow::Int64Array.new([1, 2, 3])),
+                   User.all.to_arrow)
+    end
+  end
+
+  sub_test_case("#each_record_batch") do
+    def test_model
+      record_batch = Arrow::RecordBatch.new(id: Arrow::Int64Array.new([1, 2, 3]))
+      assert_equal([record_batch],
+                   User.each_record_batch.to_a)
+    end
+
+    def test_relation
+      record_batch = Arrow::RecordBatch.new(id: Arrow::Int64Array.new([1, 2, 3]))
+      assert_equal([record_batch],
+                   User.all.each_record_batch.to_a)
+    end
+  end
 end

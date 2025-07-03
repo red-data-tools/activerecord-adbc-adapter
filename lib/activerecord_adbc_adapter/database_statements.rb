@@ -10,7 +10,9 @@ module ActiveRecordADBCAdapter
       raw_connection.open_statement do |statement|
         statement.sql_query = sql
         if binds.empty?
-          statement.execute[0]
+          statement.execute do |reader,|
+            reader
+          end
         else
           statement.prepare
           raw_records = {}
@@ -19,14 +21,16 @@ module ActiveRecordADBCAdapter
           end
           record_batch = Arrow::RecordBatch.new(raw_records)
           statement.bind(record_batch) do
-            statement.execute[0]
+            statement.execute do |reader,|
+              reader
+            end
           end
         end
       end
     end
 
-    def cast_result(raw_result)
-      Result.new(raw_result)
+    def cast_result(record_batch_reader)
+      Result.new(record_batch_reader)
     end
 
     # Borrowed from
