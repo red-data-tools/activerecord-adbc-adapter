@@ -8,7 +8,15 @@ gemspec
 
 gem "bundler"
 gem "rake"
-gem "test-unit"
+
+group :development, :test do
+  gem "irb"
+  gem "repl_type_completor"
+end
+
+group :test do
+  gem "test-unit"
+end
 
 local_rails = File.expand_path(File.join(__dir__, "..", "rails"))
 if File.exist?(local_rails)
