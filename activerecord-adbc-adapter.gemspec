@@ -1,6 +1,6 @@
 # -*- ruby -*-
 
-require_relative "lib/activerecord-adbc-adapter/version"
+require_relative "lib/activerecord_adbc_adapter/version"
 
 Gem::Specification.new do |spec|
   spec.name = "activerecord-adbc-adapter"
