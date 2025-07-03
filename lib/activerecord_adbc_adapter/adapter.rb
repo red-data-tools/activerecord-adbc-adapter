@@ -140,6 +140,16 @@ module ActiveRecordADBCAdapter
       sql
     end
 
+    def ingest(table_name, attributes, name: nil)
+      log(table_name, name) do |notification_payload|
+        with_raw_connection do |raw_connection|
+          raw_connection.open_statement do |statement|
+            statement.ingest(table_name, attributes, mode: :append)
+          end
+        end
+      end
+    end
+
     def backend
       @connection_parameters[:driver].gsub(/\Aadbc_driver_/, "")
     end
