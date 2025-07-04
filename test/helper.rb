@@ -19,22 +19,6 @@ module Helper
       end
     end
 
-    def run_sql(sql)
-      Tempfile.create("activerecord-adbc-adapter-sqlite3-log") do |log_file|
-        pid = spawn("sqlite3", @db_path, sql, out: log_file, err: log_file)
-        _, status = Process.waitpid2(pid)
-        if status.success?
-          log_file.read
-        else
-          message = "Failed to execute a SQL: <#{sql}>\n"
-          message << ("-" * 40) + "\n"
-          message << log_file.read
-          message << ("-" * 40) + "\n"
-          raise message
-        end
-      end
-    end
-
     def setup_connection
       case ENV["ACTIVERECORD_ADBC_ADAPTER_BACKEND"]
       when "duckdb"
