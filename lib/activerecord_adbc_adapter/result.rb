@@ -2,8 +2,10 @@ module ActiveRecordADBCAdapter
   class Result
     include Enumerable
 
-    def initialize(record_batch_reader)
+    def initialize(statement, record_batch_reader)
+      @statement = statement
       @record_batch_reader = record_batch_reader
+      @schema = @record_batch_reader.schema
     end
 
     def columns
@@ -46,22 +48,36 @@ module ActiveRecordADBCAdapter
     end
 
     def to_arrow
-      @table ||= @record_batch_reader.read_all
+      @table ||= consume_record_batch_reader do
+        @record_batch_reader.read_all
+      end
     end
 
     def each_record_batch
       return to_enum(__method__) unless block_given?
 
-      loop do
-        record_batch = @record_batch_reader.read_next
-        break if record_batch.nil?
-        yield(record_batch)
+      consume_record_batch_reader do
+        loop do
+          record_batch = @record_batch_reader.read_next
+          break if record_batch.nil?
+          yield(record_batch)
+        end
       end
     end
 
     private
     def fields
-      @fields ||= @record_batch_reader.schema.fields
+      @fields ||= @schema.fields
+    end
+
+    def consume_record_batch_reader
+      begin
+        yield
+      ensure
+        @record_batch_reader = nil
+        @statement.release
+        @statement = nil
+      end
     end
 
     def resolve_type(data_type)

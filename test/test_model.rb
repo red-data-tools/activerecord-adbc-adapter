@@ -24,22 +24,26 @@ class TestModel < Test::Unit::TestCase
   end
 
   sub_test_case(".ingest") do
+    def id_array
+      Arrow::Int64Array.new([4, 5, 6])
+    end
+
     def test_record_batch
-      record_batch = Arrow::RecordBatch.new(id: [4, 5, 6])
+      record_batch = Arrow::RecordBatch.new(id: id_array)
       User.ingest(record_batch)
       assert_equal((1..6).collect {|id| User.new(id: id)},
                    User.select(:id).all)
     end
 
     def test_table
-      table = Arrow::Table.new(id: [4, 5, 6])
+      table = Arrow::Table.new(id: id_array)
       User.ingest(table)
       assert_equal((1..6).collect {|id| User.new(id: id)},
                    User.select(:id).all)
     end
 
     def test_record_batch_reader
-      record_batch = Arrow::RecordBatch.new(id: [4, 5, 6])
+      record_batch = Arrow::RecordBatch.new(id: id_array)
       User.ingest(Arrow::RecordBatchReader.new([record_batch]))
       assert_equal((1..6).collect {|id| User.new(id: id)},
                    User.select(:id).all)

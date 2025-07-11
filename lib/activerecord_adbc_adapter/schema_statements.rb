@@ -1,11 +1,15 @@
 module ActiveRecordADBCAdapter
   module SchemaStatements
     NATIVE_DATABASE_TYPES = {
-      "sqlite" => {
-        primary_key: "integer PRIMARY KEY AUTOINCREMENT NOT NULL",
-      },
       "duckdb" => {
         primary_key: "bigint PRIMARY KEY",
+      },
+      "postgresql" => {
+        primary_key: "bigserial PRIMARY KEY",
+        string: {name: "character varying"},
+      },
+      "sqlite" => {
+        primary_key: "integer PRIMARY KEY AUTOINCREMENT NOT NULL",
       },
     }
 

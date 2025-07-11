@@ -152,7 +152,19 @@ module ActiveRecordADBCAdapter
     end
 
     def backend
-      @connection_parameters[:driver].gsub(/\Aadbc_driver_/, "")
+      # We can't use @connection_parameters here because #arel_visitor
+      # is called before Adapter#initialize. (#arel_visitor is called
+      # in AbstractAdapter#initialize.)
+      @config[:driver].gsub(/\Aadbc_driver_/, "")
+    end
+
+    def arel_visitor
+      case backend
+      when "postgresql"
+        Arel::Visitors::PostgreSQL.new(self)
+      else
+        super
+      end
     end
 
     private
@@ -164,6 +176,10 @@ module ActiveRecordADBCAdapter
     end
 
     def detect_features_duckdb
+      @features[:supports_insert_on_duplicate_skip] = true
+    end
+
+    def detect_features_postgresql
       @features[:supports_insert_on_duplicate_skip] = true
     end
 

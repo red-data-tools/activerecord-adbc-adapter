@@ -14,6 +14,10 @@ group :development, :test do
   gem "repl_type_completor"
 end
 
+group :benchmark do
+  gem "pg"
+end
+
 group :test do
   gem "test-unit"
 end
