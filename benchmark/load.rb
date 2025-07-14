@@ -11,18 +11,25 @@ end
 n_rows = 10000
 n_columns = 100
 
-host = ENV["PGHOST"] || "localhost"
-port = ENV["PGPORT"] || "5432"
-user = ENV["PGUSER"] || ENV["USER"]
+host = ENV["PGHOST"]
+port = ENV["PGPORT"]
+user = ENV["PGUSER"]
 password = ENV["PGPASSWORD"]
 database = ENV["PGDATABASE"] || "ar_adbc_benchmark"
-uri = "postgresql://#{user}:#{password}@#{host}:#{port}/#{database}"
+uri = +"postgresql://"
+if user
+  uri << user
+  uri << ":#{password}" if password
+  uri << "@"
+end
+uri << "#{host}:#{port || 5432}" if host
+uri << "/#{database}"
 
 class SqlLog < ActiveRecord::Base
 end
 SqlLog.establish_connection(adapter: "postgresql",
                             host: host,
-                            port: port.to_i,
+                            port: port&.to_i,
                             username: user,
                             password: password,
                             database: "postgres")
@@ -31,7 +38,7 @@ SqlLog.connection.create_database(database,
                                   template: "template0")
 SqlLog.establish_connection(adapter: "postgresql",
                             host: host,
-                            port: port.to_i,
+                            port: port&.to_i,
                             username: user,
                             password: password,
                             database: database)
@@ -45,7 +52,7 @@ class ActiveRecordLog < ActiveRecord::Base
 end
 ActiveRecordLog.establish_connection(adapter: "postgresql",
                                      host: host,
-                                     port: port.to_i,
+                                     port: port&.to_i,
                                      username: user,
                                      password: password,
                                      database: database)
