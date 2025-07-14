@@ -53,4 +53,4 @@ jobs:
           bundle exec rake
       - name: Benchmark
         run: |
-          bundle exec benchmark/load.rb
+          bundle exec benchmark/load-dump.rb

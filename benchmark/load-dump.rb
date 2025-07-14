@@ -75,17 +75,24 @@ AdbcLog.connection.create_table(AdbcLog.table_name, force: true) do |table|
   end
 end
 
-sql = +"INSERT INTO #{SqlLog.table_name} VALUES "
-n_rows.times do |row|
-  sql << ", " unless row.zero?
-  sql << "(#{row}" # id
-  n_columns.times do |column|
-    sql << ", "
-    sql << column.to_s
-  end
-  sql << ")"
+sql_load = +"INSERT INTO #{SqlLog.table_name} ("
+n_columns.times do |column|
+  sql_load << ", " unless column.zero?
+  sql_load << "column#{column}"
 end
-sql << ";"
+sql_load << ") VALUES "
+n_rows.times do |row|
+  sql_load << ", " unless row.zero?
+  sql_load << "("
+  n_columns.times do |column|
+    sql_load << ", " unless column.zero?
+    sql_load << column.to_s
+  end
+  sql_load << ")"
+end
+sql_load << ";"
+
+sql_dump = +"SELECT * FROM #{SqlLog.table_name};"
 
 raw_records = n_rows.times.collect do |row|
   record = {}
@@ -102,15 +109,27 @@ end
 arrow_table = Arrow::Table.new(arrow_columns)
 
 Benchmark.bm do |benchmark|
-  benchmark.report("SQL") do
-    SqlLog.connection.execute(sql)
+  benchmark.report("SQL: Load") do
+    SqlLog.connection.execute(sql_load)
   end
 
-  benchmark.report("Active Record") do
+  benchmark.report("SQL: Dump") do
+    SqlLog.connection.execute(sql_dump)
+  end
+
+  benchmark.report("Active Record: Load") do
     ActiveRecordLog.insert_all(raw_records)
   end
 
-  benchmark.report("ADBC") do
+  benchmark.report("Active Record: Dump") do
+    ActiveRecordLog.pluck
+  end
+
+  benchmark.report("ADBC: Load") do
     AdbcLog.ingest(arrow_table)
+  end
+
+  benchmark.report("ADBC: Dump") do
+    AdbcLog.all.to_arrow
   end
 end
