@@ -37,7 +37,14 @@ jobs:
           MAKEFLAGS="-j$(nproc)" bundle install --jobs=$(nproc)
       - name: Install test dependencies
         run: |
-          sudo apt install -y -V libadbc-driver-sqlite-dev
-      - name: Test
+          sudo apt install -y -V \
+            libadbc-driver-postgresql-dev \
+            libadbc-driver-sqlite-dev
+      - name: "Test: SQLite3"
+        run: |
+          bundle exec rake
+      - name: "Test: PostgreSQL"
+        env:
+          ACTIVERECORD_ADBC_ADAPTER_BACKEND: postgresql
         run: |
           bundle exec rake
