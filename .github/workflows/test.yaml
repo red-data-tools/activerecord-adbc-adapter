@@ -35,7 +35,7 @@ jobs:
       - name: Install dependencies
         run: |
           MAKEFLAGS="-j$(nproc)" bundle install --jobs=$(nproc)
-      - name: Install test dependencies
+      - name: Prepare test environment
         run: |
           sudo apt install -y -V \
             libadbc-driver-postgresql-dev \
@@ -51,3 +51,6 @@ jobs:
           ACTIVERECORD_ADBC_ADAPTER_BACKEND: postgresql
         run: |
           bundle exec rake
+      - name: Benchmark
+        run: |
+          bundle exec benchmark/load.rb

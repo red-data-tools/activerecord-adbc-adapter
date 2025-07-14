@@ -15,6 +15,7 @@ group :development, :test do
 end
 
 group :benchmark do
+  gem "benchmark"
   gem "pg"
 end
 
