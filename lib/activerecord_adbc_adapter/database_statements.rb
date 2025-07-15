@@ -7,13 +7,10 @@ module ActiveRecordADBCAdapter
                       prepare:,
                       notification_payload:,
                       batch:)
-      statement = raw_connection.open_statement
-      begin
+      raw_connection.open_statement do |statement|
         statement.sql_query = sql
         if binds.empty?
-          reader = statement.execute do |r,|
-            r
-          end
+          statement.execute[0]
         else
           statement.prepare
           raw_records = {}
@@ -21,22 +18,15 @@ module ActiveRecordADBCAdapter
             raw_records[bind.name] = [type_casted_bind]
           end
           record_batch = Arrow::RecordBatch.new(raw_records)
-          reader = statement.bind(record_batch) do
-            statement.execute do |r,|
-              r
-            end
+          statement.bind(record_batch) do
+            statement.execute[0]
           end
         end
-      rescue
-        statement.release
-        raise
-      else
-        Result.new(statement, reader)
       end
     end
 
-    def cast_result(result)
-      result
+    def cast_result(table)
+      Result.new(table)
     end
 
     # Borrowed from
