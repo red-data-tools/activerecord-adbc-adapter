@@ -18,4 +18,13 @@ class TestType < Test::Unit::TestCase
     assert_equal(User.new(id: 1, string: "Hello"),
                  User.first)
   end
+
+  def test_text
+    ActiveRecord::Base.connection.create_table("users") do |table|
+      table.column :text, :text
+    end
+    User.create!(text: "Hello")
+    assert_equal(User.new(id: 1, text: "Hello"),
+                 User.first)
+  end
 end
