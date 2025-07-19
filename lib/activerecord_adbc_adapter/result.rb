@@ -72,6 +72,10 @@ module ActiveRecordADBCAdapter
         ActiveRecord::Type::Integer.new(limit: 4)
       when Arrow::Int64DataType
         ActiveRecord::Type::Integer.new(limit: 8)
+      when Arrow::FloatDataType
+        ActiveRecord::Type::Float.new(limit: 24)
+      when Arrow::DoubleDataType
+        ActiveRecord::Type::Float.new
       when Arrow::StringDataType
         ActiveRecord::Type::String.new
       else

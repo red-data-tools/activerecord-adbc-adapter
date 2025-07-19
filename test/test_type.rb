@@ -10,6 +10,15 @@ class TestType < Test::Unit::TestCase
                  User.first)
   end
 
+  def test_float
+    ActiveRecord::Base.connection.create_table("users") do |table|
+      table.column :float, :float
+    end
+    User.create!(float: 2.9)
+    assert_equal(User.new(id: 1, float: 2.9),
+                 User.first)
+  end
+
   def test_string
     ActiveRecord::Base.connection.create_table("users") do |table|
       table.column :string, :string
