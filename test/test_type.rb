@@ -19,6 +19,15 @@ class TestType < Test::Unit::TestCase
                  User.first)
   end
 
+  def test_double
+    ActiveRecord::Base.connection.create_table("users") do |table|
+      table.column :double, :double
+    end
+    User.create!(double: 2.9)
+    assert_equal(User.new(id: 1, double: 2.9),
+                 User.first)
+  end
+
   def test_string
     ActiveRecord::Base.connection.create_table("users") do |table|
       table.column :string, :string
