@@ -47,7 +47,7 @@ jobs:
             gir1.2-adbc-arrow-1.0=${adbc_version}-1 \
             gir1.2-arrow-1.0=${arrow_version}-1 \
             libadbc-arrow-glib-dev=${adbc_version}-1 \
-            libadbc-driver-manager-dev=${adbc_version}-1
+            libadbc-driver-manager-dev=${adbc_version}-1 \
             libadbc-glib-dev=${adbc_version}-1 \
             libadbc-glib-dev=${adbc_version}-1 \
             libarrow-acero-dev=${arrow_version}-1 \
