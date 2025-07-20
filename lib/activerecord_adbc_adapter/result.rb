@@ -80,6 +80,8 @@ module ActiveRecordADBCAdapter
         ActiveRecord::Type::Binary.new
       when Arrow::StringDataType
         ActiveRecord::Type::String.new
+      when Arrow::Date32DataType
+        ActiveRecord::Type::Date.new
       else
         raise "Unknown: #{data_type.inspect}"
       end

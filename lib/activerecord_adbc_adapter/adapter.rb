@@ -8,6 +8,7 @@ require_relative "result"
 require_relative "schema_creation"
 require_relative "schema_definitions"
 require_relative "schema_statements"
+require_relative "type/date"
 
 module ActiveRecordADBCAdapter
   # = Active Record ADBC Adapter

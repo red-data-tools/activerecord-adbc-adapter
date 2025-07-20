@@ -54,4 +54,14 @@ class TestType < Test::Unit::TestCase
     assert_equal(User.new(id: 1, text: "Hello"),
                  User.first)
   end
+
+  def test_date
+    ActiveRecord::Base.connection.create_table("users") do |table|
+      table.date :date
+    end
+    date = Date.new(2025, 7, 20)
+    User.create!(date: date)
+    assert_equal(User.new(id: 1, date: date),
+                 User.first)
+  end
 end

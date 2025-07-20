@@ -7,5 +7,9 @@ module ActiveRecordADBCAdapter
         "\"#{column_name.gsub("\"", "\"\"")}\""
       end
     end
+
+    def quoted_date(value)
+      value
+    end
   end
 end
