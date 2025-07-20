@@ -1,6 +1,15 @@
 class TestType < Test::Unit::TestCase
   include Helper::Sandbox
 
+  def test_bigint
+    ActiveRecord::Base.connection.create_table("users") do |table|
+      table.column :bigint, :bigint
+    end
+    User.create!(bigint: 2 ** 32)
+    assert_equal(User.new(id: 1, bigint: 2 ** 32),
+                 User.first)
+  end
+
   def test_integer
     ActiveRecord::Base.connection.create_table("users") do |table|
       table.column :integer, :integer
