@@ -7,6 +7,7 @@ module ActiveRecordADBCAdapter
       "postgresql" => {
         primary_key: "bigserial PRIMARY KEY",
         string: {name: "character varying"},
+        binary: {name: "bytea"},
       },
       "sqlite" => {
         primary_key: "integer PRIMARY KEY AUTOINCREMENT NOT NULL",

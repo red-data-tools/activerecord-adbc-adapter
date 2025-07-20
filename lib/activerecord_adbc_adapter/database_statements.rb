@@ -15,7 +15,17 @@ module ActiveRecordADBCAdapter
           statement.prepare
           raw_records = {}
           binds.zip(type_casted_binds) do |bind, type_casted_bind|
-            raw_records[bind.name] = [type_casted_bind]
+            case type_casted_bind
+            when String
+              if type_casted_bind.encoding == Encoding::ASCII_8BIT
+                array = Arrow::BinaryArray.new([type_casted_bind])
+              else
+                array = Arrow::StringArray.new([type_casted_bind])
+              end
+            else
+              array = [type_casted_bind]
+            end
+            raw_records[bind.name] = array
           end
           record_batch = Arrow::RecordBatch.new(raw_records)
           statement.bind(record_batch) do

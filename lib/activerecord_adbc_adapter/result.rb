@@ -76,6 +76,8 @@ module ActiveRecordADBCAdapter
         ActiveRecord::Type::Float.new(limit: 24)
       when Arrow::DoubleDataType
         ActiveRecord::Type::Float.new
+      when Arrow::BinaryDataType
+        ActiveRecord::Type::Binary.new
       when Arrow::StringDataType
         ActiveRecord::Type::String.new
       else
