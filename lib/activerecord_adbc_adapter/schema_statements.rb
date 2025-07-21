@@ -8,6 +8,7 @@ module ActiveRecordADBCAdapter
         primary_key: "bigserial PRIMARY KEY",
         string: {name: "character varying"},
         binary: {name: "bytea"},
+        datetime: {name: "timestamp without time zone"},
       },
       "sqlite" => {
         primary_key: "integer PRIMARY KEY AUTOINCREMENT NOT NULL",

@@ -19,10 +19,28 @@ module Helper
       end
     end
 
+    def backend
+      ENV["ACTIVERECORD_ADBC_ADAPTER_BACKEND"]
+    end
+
+    def duckdb?
+      backend == "duckdb"
+    end
+
+    def postgresql?
+      backend == "postgresql"
+    end
+
+    def sqlite?
+      return false if duckdb?
+      return false if postgresql?
+      true
+    end
+
     def setup_connection
       suffix = nil
       database = "ar_adbc_test"
-      case ENV["ACTIVERECORD_ADBC_ADAPTER_BACKEND"]
+      case backend
       when "duckdb"
         suffix = ".duckdb"
         path_key = :path

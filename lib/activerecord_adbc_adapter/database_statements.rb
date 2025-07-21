@@ -22,6 +22,8 @@ module ActiveRecordADBCAdapter
               else
                 array = Arrow::StringArray.new([type_casted_bind])
               end
+            when DateTime
+              array = Arrow::TimestampArray.new(:micro, [type_casted_bind])
             when Date
               array = Arrow::Date32Array.new([type_casted_bind])
             else

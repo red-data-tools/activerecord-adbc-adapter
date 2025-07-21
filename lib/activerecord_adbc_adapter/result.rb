@@ -82,6 +82,8 @@ module ActiveRecordADBCAdapter
         ActiveRecord::Type::String.new
       when Arrow::Date32DataType
         ActiveRecord::Type::Date.new
+      when Arrow::TimestampDataType
+        ActiveRecord::Type::DateTime.new
       else
         raise "Unknown: #{data_type.inspect}"
       end
