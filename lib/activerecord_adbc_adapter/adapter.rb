@@ -46,12 +46,29 @@ module ActiveRecordADBCAdapter
         @connection.open_statement(&block)
       end
 
-      def get_objects(*args)
-        reader = @connection.get_objects(*args)
-        begin
-          yield(reader.read_all)
-        ensure
-          reader.unref
+      if ADBC::Connection.method_defined?(:get_objects_raw)
+        # red-adbc provides convenient wrapper
+        def get_objects(...)
+          @connection.get_objects(...)
+        end
+      else
+        def get_objects(depth: :all,
+                        catalog: nil,
+                        db_schema: nil,
+                        table_name: nil,
+                        table_types: nil,
+                        column_name: nil)
+          reader = @connection.get_objects(depth,
+                                           catalog,
+                                           db_schema,
+                                           table_name,
+                                           table_types,
+                                           column_name)
+          begin
+            reader.read_all
+          ensure
+            reader.unref
+          end
         end
       end
     end

@@ -63,94 +63,86 @@ module ActiveRecordADBCAdapter
     def tables
       type = adbc_table_type
       with_raw_connection do |conn|
-        conn.get_objects(:tables,
-                         adbc_catalog,
-                         adbc_db_schema,
-                         nil,
-                         [type]) do |table|
-          tables = []
-          table.raw_records.each do |_catalog_name, db_schemas|
-            db_schemas.each do |db_schema|
-              db_schema_tables = db_schema["db_schema_tables"]
-              next if db_schema_tables.nil?
-              db_schema_tables.each do |t|
-                # Some drivers may ignore table_types
-                next unless t["table_type"] == type
-                tables << t["table_name"]
-              end
+        objects = conn.get_objects(depth: :tables,
+                                   catalog: adbc_catalog,
+                                   db_schema: adbc_db_schema,
+                                   table_types: [type])
+        tables = []
+        objects.raw_records.each do |_catalog_name, db_schemas|
+          db_schemas.each do |db_schema|
+            db_schema_tables = db_schema["db_schema_tables"]
+            next if db_schema_tables.nil?
+            db_schema_tables.each do |t|
+              # Some drivers may ignore table_types
+              next unless t["table_type"] == type
+              tables << t["table_name"]
             end
           end
-          tables
         end
+        tables
       end
     end
 
     def views
       type = adbc_view_type
       with_raw_connection do |conn|
-        conn.get_objects(:tables,
-                         adbc_catalog,
-                         adbc_db_schema,
-                         nil,
-                         [type]) do |table|
-          views = []
-          table.raw_records.each do |_catalog_name, db_schemas|
-            db_schemas.each do |db_schema|
-              db_schema_tables = db_schema["db_schema_tables"]
-              next if db_schema_tables.nil?
-              db_schema_tables.each do |t|
-                # Some drivers may ignore table_types
-                next unless t["table_type"] == type
-                views << t["table_name"]
-              end
+        objects = conn.get_objects(depth: :tables,
+                                   catalog: adbc_catalog,
+                                   db_schema: adbc_db_schema,
+                                   table_types: [type])
+        views = []
+        objects.raw_records.each do |_catalog_name, db_schemas|
+          db_schemas.each do |db_schema|
+            db_schema_tables = db_schema["db_schema_tables"]
+            next if db_schema_tables.nil?
+            db_schema_tables.each do |t|
+              # Some drivers may ignore table_types
+              next unless t["table_type"] == type
+              views << t["table_name"]
             end
           end
-          views
         end
+        views
       end
     end
 
     def column_definitions(table_name)
       with_raw_connection do |conn|
-        conn.get_objects(:all,
-                         adbc_catalog,
-                         adbc_db_schema,
-                         table_name) do |table|
-          table.raw_records.each do |_catalog_name, db_schemas|
-            db_schemas.each do |db_schema|
-              db_schema_tables = db_schema["db_schema_tables"]
-              next if db_schema_tables.nil?
-              db_schema_tables.each do |t|
-                return t["table_columns"]
-              end
+        objects = conn.get_objects(catalog: adbc_catalog,
+                                   db_schema: adbc_db_schema,
+                                   table_name: table_name)
+        objects.raw_records.each do |_catalog_name, db_schemas|
+          db_schemas.each do |db_schema|
+            db_schema_tables = db_schema["db_schema_tables"]
+            next if db_schema_tables.nil?
+            db_schema_tables.each do |table|
+              return table["table_columns"]
             end
           end
-          [] # raise?
         end
+        [] # raise?
       end
     end
 
     def primary_keys(table_name)
       with_raw_connection do |conn|
-        conn.get_objects(:all,
-                         adbc_catalog,
-                         adbc_db_schema,
-                         table_name) do |table|
-          table.raw_records.each do |_catalog_name, db_schemas|
-            db_schemas.each do |db_schema|
-              db_schema_tables = db_schema["db_schema_tables"]
-              next if db_schema_tables.nil?
-              db_schema_tables.each do |t|
-                constraint = t["table_constraints"].find do |constraint|
-                  constraint["constraint_type"] == "PRIMARY KEY"
-                end
-                return [] if constraint.nil?
-                return constraint["constraint_column_names"] || []
+        objects = conn.get_objects(catalog: adbc_catalog,
+                                   db_schema: adbc_db_schema,
+                                   table_name: table_name)
+        objects.raw_records.each do |_catalog_name, db_schemas|
+          db_schemas.each do |db_schema|
+            db_schema_tables = db_schema["db_schema_tables"]
+            next if db_schema_tables.nil?
+            db_schema_tables.each do |table|
+              constraint = table["table_constraints"].find do |constraint|
+                constraint["constraint_type"] == "PRIMARY KEY"
               end
+              return [] if constraint.nil?
+              return constraint["constraint_column_names"] || []
             end
           end
-          []
         end
+        []
       end
     end
 
