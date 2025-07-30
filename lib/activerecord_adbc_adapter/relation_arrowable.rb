@@ -12,5 +12,3 @@ module ActiveRecordADBCAdapter
   ActiveRecord::Relation.include(RelationArrowable)
   ActiveRecord::Querying.delegate(:to_arrow, :each_record_batch, to: :all)
 end
-
-
