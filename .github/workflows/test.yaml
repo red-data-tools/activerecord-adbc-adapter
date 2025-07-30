@@ -72,6 +72,7 @@ jobs:
       - name: "Test: PostgreSQL"
         env:
           ACTIVERECORD_ADBC_ADAPTER_BACKEND: postgresql
+          PGHOST: /var/run/postgresql
         run: |
           bundle exec rake
       - name: Benchmark
