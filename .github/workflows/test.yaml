@@ -76,5 +76,7 @@ jobs:
         run: |
           bundle exec rake
       - name: Benchmark
+        env:
+          PGHOST: /var/run/postgresql
         run: |
           bundle exec benchmark/load-dump.rb
