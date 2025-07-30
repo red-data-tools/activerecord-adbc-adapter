@@ -32,7 +32,8 @@ jobs:
         # We can't use "bundler-cache: true" with ruby/setup-ruby
         # because it doesn't cache dependencies installed by
         # rubygems-requirements-system automatically.
-      # This is a workaround.
+      # This is a workaround until ADBC 20 is released.
+      # See also: https://github.com/apache/arrow-adbc/issues/3178
       - name: Install the specific version of Apache Arrow
         run: |
           sudo apt update
