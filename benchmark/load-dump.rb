@@ -16,14 +16,7 @@ port = ENV["PGPORT"]
 user = ENV["PGUSER"]
 password = ENV["PGPASSWORD"]
 database = ENV["PGDATABASE"] || "ar_adbc_benchmark"
-uri = +"postgresql://"
-if user
-  uri << user
-  uri << ":#{password}" if password
-  uri << "@"
-end
-uri << "#{host}:#{port || 5432}" if host
-uri << "/#{database}"
+uri = "postgresql:///#{database}"
 
 class SqlLog < ActiveRecord::Base
 end
