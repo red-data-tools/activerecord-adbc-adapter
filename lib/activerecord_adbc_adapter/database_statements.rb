@@ -23,7 +23,8 @@ module ActiveRecordADBCAdapter
                 array = Arrow::StringArray.new([type_casted_bind])
               end
             when DateTime
-              array = Arrow::TimestampArray.new(:micro, [type_casted_bind])
+              array = Arrow::TimestampArray.new(:micro,
+                                                [type_casted_bind.localtime])
             when Date
               array = Arrow::Date32Array.new([type_casted_bind])
             else
@@ -39,8 +40,8 @@ module ActiveRecordADBCAdapter
       end
     end
 
-    def cast_result(table)
-      Result.new(table)
+    def cast_result(arrow_table)
+      Result.new(backend, arrow_table)
     end
 
     # Borrowed from

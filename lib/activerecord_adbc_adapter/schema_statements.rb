@@ -12,6 +12,10 @@ module ActiveRecordADBCAdapter
       },
       "sqlite" => {
         primary_key: "integer PRIMARY KEY AUTOINCREMENT NOT NULL",
+        # INTEGER storage class can store 8 bytes value:
+        # https://www.sqlite.org/datatype3.html#storage_classes_and_datatypes
+        integer: {name: "integer", limit: 8},
+        bigint: {name: "bigint", limit: 8},
       },
     }
 
@@ -156,9 +160,15 @@ module ActiveRecordADBCAdapter
     end
 
     def new_column_from_field(table_name, field, definitions)
+      xdbc_type_name = field["xdbc_type_name"]
+      if xdbc_type_name
+        type_metadata = fetch_type_metadata(xdbc_type_name)
+      else
+        type_metadata = nil
+      end
       Column.new(field["column_name"],
                  field["xdbc_column_def"],
-                 nil,
+                 type_metadata,
                  field["xdbc_nullable"] == 1,
                  nil,
                  collation: nil,

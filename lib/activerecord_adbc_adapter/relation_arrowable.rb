@@ -1,11 +1,15 @@
 module ActiveRecordADBCAdapter
   module RelationArrowable
     def to_arrow
-      exec_main_query.to_arrow
+      result = exec_main_query
+      result.attach_model(model)
+      result.to_arrow
     end
 
     def each_record_batch(&block)
-      exec_main_query.each_record_batch(&block)
+      result = exec_main_query
+      result.attach_model(model)
+      result.each_record_batch(&block)
     end
   end
 

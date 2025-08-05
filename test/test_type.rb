@@ -117,7 +117,6 @@ class TestType < Test::Unit::TestCase
   end
 
   def test_date_arrow
-    omit("TODO") if sqlite?
     ActiveRecord::Base.connection.create_table("users") do |table|
       table.date :date
     end
@@ -138,15 +137,15 @@ class TestType < Test::Unit::TestCase
                  User.first)
   end
 
-  def test_datetime
-    omit("TODO") if sqlite?
+  def test_datetime_arrow
     ActiveRecord::Base.connection.create_table("users") do |table|
       table.datetime :datetime
     end
     datetime = DateTime.new(2025, 7, 20, 20, 40, 23)
     User.create!(datetime: datetime)
+    array = Arrow::TimestampArray.new(:micro, [datetime.localtime])
     assert_equal(Arrow::Table.new(id: Arrow::Int64Array.new([1]),
-                                  datetime: Arrow::TimestampArray.new(:micro, [datetime])),
+                                  datetime: array),
                  User.to_arrow)
   end
 end
