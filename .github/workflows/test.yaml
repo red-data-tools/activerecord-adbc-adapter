@@ -67,11 +67,16 @@ jobs:
           sudo systemctl restart postgresql
           sudo -u postgres -H psql -c "CREATE ROLE ${USER} SUPERUSER LOGIN;"
       - name: "Test: SQLite3"
+        env:
+          # We can remove this once ADBC 20 is released.
+          ACTIVERECORD_ADBC_ADAPTER_GC: disable
         run: |
           bundle exec rake
       - name: "Test: PostgreSQL"
         env:
           ACTIVERECORD_ADBC_ADAPTER_BACKEND: postgresql
+          # We can remove this once ADBC 20 is released.
+          ACTIVERECORD_ADBC_ADAPTER_GC: disable
           PGHOST: /var/run/postgresql
         run: |
           bundle exec rake
