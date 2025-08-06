@@ -1,6 +1,25 @@
 class TestType < Test::Unit::TestCase
   include Helper::Sandbox
 
+  def test_boolean_active_record
+    ActiveRecord::Base.connection.create_table("users") do |table|
+      table.boolean :boolean
+    end
+    User.create!(boolean: true)
+    assert_equal(User.new(id: 1, boolean: true),
+                 User.first)
+  end
+
+  def test_boolean_arrow
+    ActiveRecord::Base.connection.create_table("users") do |table|
+      table.boolean :boolean
+    end
+    User.create!(boolean: true)
+    assert_equal(Arrow::Table.new(id: Arrow::Int64Array.new([1]),
+                                  boolean: Arrow::BooleanArray.new([true])),
+                 User.to_arrow)
+  end
+
   def test_bigint_active_record
     ActiveRecord::Base.connection.create_table("users") do |table|
       table.bigint :bigint

@@ -20,24 +20,29 @@ module ActiveRecordADBCAdapter
         chunked_array = nil
         model_column = model_columns_hash[field.name]
         if model_column
-         case model_column.sql_type_metadata.type
-         when :date
-           case field.data_type
-           when Arrow::StringDataType
-             casted_type = Arrow::Date32DataType.new
-             chunked_array = column.cast(casted_type)
-             field = Arrow::Field.new(field.name, casted_type)
-             casted = true
-           end
-         when :datetime
-           case field.data_type
-           when Arrow::StringDataType
-             casted_type = Arrow::TimestampDataType.new(:micro)
-             chunked_array = column.cast(casted_type)
-             field = Arrow::Field.new(field.name, casted_type)
-             casted = true
-           end
-         end
+          casted_type = nil
+          case model_column.sql_type_metadata.type
+          when :boolean
+            case field.data_type
+            when Arrow::IntegerDataType
+              casted_type = Arrow::BooleanDataType.new
+            end
+          when :date
+            case field.data_type
+            when Arrow::StringDataType
+              casted_type = Arrow::Date32DataType.new
+            end
+          when :datetime
+            case field.data_type
+            when Arrow::StringDataType
+              casted_type = Arrow::TimestampDataType.new(:micro)
+            end
+          end
+          if casted_type
+            chunked_array = column.cast(casted_type)
+            field = Arrow::Field.new(field.name, casted_type)
+            casted = true
+          end
         end
         new_chunked_arrays << (chunked_array || column.data)
         new_fields << field
@@ -109,6 +114,8 @@ module ActiveRecordADBCAdapter
 
     def resolve_type(data_type)
       case data_type
+      when Arrow::BooleanDataType
+        ActiveRecord::Type::Boolean.new
       when Arrow::Int32DataType
         ActiveRecord::Type::Integer.new(limit: 4)
       when Arrow::Int64DataType
