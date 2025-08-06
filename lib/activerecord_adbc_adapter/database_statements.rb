@@ -33,8 +33,19 @@ module ActiveRecordADBCAdapter
             raw_records[bind.name] = array
           end
           record_batch = Arrow::RecordBatch.new(raw_records)
-          statement.bind(record_batch) do
-            statement.execute[0]
+          if defined?(::ADBCArrow)
+            # We can remove this once ADBC 20 is released.
+            begin
+              statement.bind(record_batch) do
+                statement.execute[0]
+              end
+            ensure
+              GC.start
+            end
+          else
+            statement.bind(record_batch) do
+              statement.execute[0]
+            end
           end
         end
       end
