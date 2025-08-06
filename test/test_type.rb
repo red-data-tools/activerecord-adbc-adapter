@@ -115,6 +115,25 @@ class TestType < Test::Unit::TestCase
                  User.first)
   end
 
+  def test_string_arrow
+    ActiveRecord::Base.connection.create_table("users") do |table|
+      table.string :string
+    end
+    User.create!(string: "Hello")
+    assert_equal(Arrow::Table.new(id: Arrow::Int64Array.new([1]),
+                                  string: Arrow::StringArray.new(["Hello"])),
+                 User.to_arrow)
+  end
+
+  def test_text_active_record
+    ActiveRecord::Base.connection.create_table("users") do |table|
+      table.text :text
+    end
+    User.create!(text: "Hello")
+    assert_equal(User.new(id: 1, text: "Hello"),
+                 User.first)
+  end
+
   def test_text_arrow
     ActiveRecord::Base.connection.create_table("users") do |table|
       table.text :text
