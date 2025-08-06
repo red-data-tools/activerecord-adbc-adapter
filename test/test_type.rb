@@ -181,7 +181,12 @@ class TestType < Test::Unit::TestCase
     end
     datetime = DateTime.new(2025, 7, 20, 20, 40, 23)
     User.create!(datetime: datetime)
-    array = Arrow::TimestampArray.new(:micro, [datetime.localtime])
+    if sqlite?
+      unit = :nano
+    else
+      unit = :micro
+    end
+    array = Arrow::TimestampArray.new(unit, [datetime.localtime])
     assert_equal(Arrow::Table.new(id: Arrow::Int64Array.new([1]),
                                   datetime: array),
                  User.to_arrow)
@@ -209,6 +214,33 @@ class TestType < Test::Unit::TestCase
     array = Arrow::Time64Array.new(:micro, [value])
     assert_equal(Arrow::Table.new(id: Arrow::Int64Array.new([1]),
                                   time: array),
+                 User.to_arrow)
+  end
+
+  def test_timestamp_active_record
+    ActiveRecord::Base.connection.create_table("users") do |table|
+      table.timestamp :timestamp
+    end
+    timestamp = Time.new(2025, 7, 20, 20, 40, 23)
+    User.create!(timestamp: timestamp)
+    assert_equal(User.new(id: 1, timestamp: timestamp),
+                 User.first)
+  end
+
+  def test_timestamp_arrow
+    ActiveRecord::Base.connection.create_table("users") do |table|
+      table.timestamp :timestamp
+    end
+    timestamp = Time.new(2025, 7, 20, 20, 40, 23)
+    User.create!(timestamp: timestamp)
+    if sqlite?
+      unit = :nano
+    else
+      unit = :micro
+    end
+    array = Arrow::TimestampArray.new(unit, [timestamp])
+    assert_equal(Arrow::Table.new(id: Arrow::Int64Array.new([1]),
+                                  timestamp: array),
                  User.to_arrow)
   end
 end

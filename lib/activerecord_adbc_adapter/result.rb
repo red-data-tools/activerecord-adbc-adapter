@@ -35,7 +35,7 @@ module ActiveRecordADBCAdapter
           when :datetime
             case field.data_type
             when Arrow::StringDataType
-              casted_type = Arrow::TimestampDataType.new(:micro)
+              casted_type = Arrow::TimestampDataType.new(:nano)
             end
           end
           if casted_type
