@@ -11,5 +11,9 @@ module ActiveRecordADBCAdapter
     def quoted_date(value)
       value
     end
+
+    def quoted_time(value)
+      value
+    end
   end
 end

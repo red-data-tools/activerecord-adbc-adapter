@@ -186,4 +186,29 @@ class TestType < Test::Unit::TestCase
                                   datetime: array),
                  User.to_arrow)
   end
+
+  def test_time_active_record
+    omit("SQLite ADBC adapter doesn't support time for now") if sqlite?
+    ActiveRecord::Base.connection.create_table("users") do |table|
+      table.time :time
+    end
+    time = ActiveRecord::Type::Time::Value.new(Time.new(2025, 7, 20, 20, 40, 23))
+    User.create!(time: time)
+    assert_equal(User.new(id: 1, time: time),
+                 User.first)
+  end
+
+  def test_time_arrow
+    omit("SQLite ADBC adapter doesn't support time for now") if sqlite?
+    ActiveRecord::Base.connection.create_table("users") do |table|
+      table.time :time
+    end
+    time = ActiveRecord::Type::Time::Value.new(Time.new(2025, 7, 20, 20, 40, 23))
+    User.create!(time: time)
+    value = (time.seconds_since_midnight * 1_000_000).to_i
+    array = Arrow::Time64Array.new(:micro, [value])
+    assert_equal(Arrow::Table.new(id: Arrow::Int64Array.new([1]),
+                                  time: array),
+                 User.to_arrow)
+  end
 end

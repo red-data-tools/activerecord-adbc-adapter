@@ -24,9 +24,13 @@ module ActiveRecordADBCAdapter
               end
             when DateTime
               array = Arrow::TimestampArray.new(:micro,
-                                                [type_casted_bind.localtime])
+                                                [type_casted_bind.dup.localtime])
             when Date
               array = Arrow::Date32Array.new([type_casted_bind])
+            when ActiveRecord::Type::Time::Value
+              local_time = type_casted_bind.dup.localtime
+              time_value = (local_time.seconds_since_midnight * 1_000_000).to_i
+              array = Arrow::Time64Array.new(:micro, [time_value])
             else
               array = [type_casted_bind]
             end
