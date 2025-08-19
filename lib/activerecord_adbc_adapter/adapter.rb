@@ -22,6 +22,7 @@ module ActiveRecordADBCAdapter
 
     class Connection
       def initialize(**params)
+        params.delete(:database_tasks)
         @database = ADBC::Database.open(**params)
         @connection = @database.connect
       end
