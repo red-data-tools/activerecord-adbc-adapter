@@ -23,6 +23,10 @@ class TestModel < Test::Unit::TestCase
                  User.select(:id).all)
   end
 
+  def test_count
+    assert_equal(3, User.count)
+  end
+
   sub_test_case(".ingest") do
     def id_array
       Arrow::Int64Array.new([4, 5, 6])

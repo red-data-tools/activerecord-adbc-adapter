@@ -92,6 +92,15 @@ module ActiveRecordADBCAdapter
       @indexed_rows ||= to_a
     end
 
+    def cast_values(type_overrides = {})
+      # TODO: type_overrides support
+      if fields.size == 1
+        rows.map(&:first)
+      else
+        rows
+      end
+    end
+
     def to_arrow
       @table
     end
