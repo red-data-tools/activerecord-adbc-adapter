@@ -185,5 +185,5 @@ subplots = results.each_with_index.collect do |data, i|
   }
 end
 GRM.merge(subplots: subplots, size: [1200, 600])
-GRM.export("load-dump.png")
+GRM.export("load-dump.pdf")
 GRM.export("load-dump.svg")
