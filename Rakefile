@@ -6,6 +6,10 @@ require "bundler/gem_helper"
 base_dir = File.join(__dir__)
 
 helper = Bundler::GemHelper.new(base_dir)
+def helper.version_tag
+  version
+end
+
 helper.install
 
 release_task = Rake.application["release"]
