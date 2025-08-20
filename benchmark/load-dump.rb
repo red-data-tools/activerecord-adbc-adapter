@@ -159,7 +159,7 @@ y_min = 0.05
 y_max = 0.95
 all_reals = results.collect do |results|
   results[:results].collect do |result|
-    result[:real]
+    result.real
   end
 end
 y_range = [0.0, all_reals.flatten.max]
@@ -177,9 +177,9 @@ subplots = results.each_with_index.collect do |data, i|
     title: data[:title],
     c: n_results.times.collect {|j| j + 2},
     x_label: "Approach",
-    y: data[:results].collect {|result| result[:real]},
+    y: data[:results].collect(&:real),
     y_label: "Elapsed time (s)",
-    y_labels: data[:results].collect {|result| result[:label]},
+    y_labels: data[:results].collect(&:label),
     y_range: y_range,
     subplot: position,
   }
