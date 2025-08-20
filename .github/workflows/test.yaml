@@ -100,7 +100,7 @@ jobs:
           bundle exec benchmark/load-dump.rb
       - uses: actions/upload-artifact@v4
         with:
-          name: benchmark
+          name: benchmark-ruby-${{ matrix.ruby-version }}
           path: |
             *.csv
             *.svg
