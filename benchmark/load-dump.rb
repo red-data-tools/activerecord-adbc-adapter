@@ -175,7 +175,7 @@ subplots = results.each_with_index.collect do |data, i|
   {
     kind: "barplot",
     title: data[:title],
-    c: n_results.times.collect {|j| j + 2},
+    c: data[:results].size.times.collect {|j| j + 2},
     x_label: "Approach",
     y: data[:results].collect(&:real),
     y_label: "Elapsed time (s)",
