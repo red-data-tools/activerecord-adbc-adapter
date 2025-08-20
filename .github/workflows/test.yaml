@@ -79,10 +79,20 @@ jobs:
           bundle exec rake
       - name: Install benchmark dependencies
         run: |
-          sudo apt install -y -V \
-            gr-framework-plugin-base \
-            gr-framework-plugin-full \
-            libgr-framework-dev
+          # We can use this with ubuntu-26.04.
+          # sudo apt install -y -V \
+          #   gr-framework-plugin-base \
+          #   gr-framework-plugin-full \
+          #   libgr-framework-dev
+          latest_gr_tag=$(curl https://api.github.com/repos/sciapp/gr/tags | \
+                            jq -r '.[].name' | \
+                            head -n 1)
+          latest_gr_version=${latest_gr_tag#v}
+          wget \
+            --output-document gr.tar.gz \
+            https://github.com/sciapp/gr/releases/download/${latest_gr_tag}/gr-${latest_gr_version}-Ubuntu-x86_64.tar.gz
+          tar xvf gr.tar.gz
+          echo "GRDIR=${PWD}/gr" >> "${GITHUB_ENV}"
       - name: Benchmark
         env:
           PGHOST: /var/run/postgresql
