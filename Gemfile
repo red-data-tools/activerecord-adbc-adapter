@@ -17,6 +17,7 @@ end
 group :benchmark do
   gem "benchmark"
   gem "pg"
+  gem "ruby-gr"
 end
 
 group :test do

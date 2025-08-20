@@ -77,8 +77,21 @@ jobs:
           PGHOST: /var/run/postgresql
         run: |
           bundle exec rake
+      - name: Install benchmark dependencies
+        run: |
+          sudo apt install -y -V \
+            gr-framework-plugin-base \
+            gr-framework-plugin-full \
+            libgr-framework-dev
       - name: Benchmark
         env:
           PGHOST: /var/run/postgresql
         run: |
           bundle exec benchmark/load-dump.rb
+      - uses: actions/upload-artifact@v4
+        with:
+          name: benchmark
+          path: |
+            *.csv
+            *.svg
+            *.pdf
