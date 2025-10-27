@@ -98,7 +98,7 @@ jobs:
           PGHOST: /var/run/postgresql
         run: |
           bundle exec benchmark/load-dump.rb
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: benchmark-ruby-${{ matrix.ruby-version }}
           path: |
