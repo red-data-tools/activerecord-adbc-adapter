@@ -21,6 +21,6 @@ Gem::Specification.new do |spec|
   ]
   spec.files += Dir.glob("lib/**/*.rb")
 
-  spec.add_runtime_dependency("activerecord", ">= 8.0.0")
+  spec.add_runtime_dependency("activerecord", ">= 8.1.0")
   spec.add_runtime_dependency("red-adbc")
 end

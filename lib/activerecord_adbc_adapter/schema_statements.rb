@@ -163,10 +163,13 @@ module ActiveRecordADBCAdapter
       xdbc_type_name = field["xdbc_type_name"]
       if xdbc_type_name
         type_metadata = fetch_type_metadata(xdbc_type_name)
+        cast_type = lookup_cast_type(type_metadata.sql_type)
       else
         type_metadata = nil
+        cast_type = nil
       end
       Column.new(field["column_name"],
+                 cast_type,
                  field["xdbc_column_def"],
                  type_metadata,
                  field["xdbc_nullable"] == 1,
