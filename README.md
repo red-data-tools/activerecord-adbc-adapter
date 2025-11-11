@@ -125,7 +125,7 @@ production:
 > example, [the PostgreSQL
 > driver](https://arrow.apache.org/adbc/current/driver/postgresql.html)
 > and [the SQLite
-> driver(https://arrow.apache.org/adbc/current/driver/sqlite.html) use
+> driver](https://arrow.apache.org/adbc/current/driver/sqlite.html) use
 > `uri` for connection information but [the DuckDB
 > driver](https://duckdb.org/docs/stable/clients/adbc.html) uses
 > `entrypoint` and `path`:
