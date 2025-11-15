@@ -193,7 +193,6 @@ class TestType < Test::Unit::TestCase
   end
 
   def test_time_active_record
-    omit("SQLite ADBC adapter doesn't support time for now") if sqlite?
     ActiveRecord::Base.connection.create_table("users") do |table|
       table.time :time
     end
@@ -204,7 +203,6 @@ class TestType < Test::Unit::TestCase
   end
 
   def test_time_arrow
-    omit("SQLite ADBC adapter doesn't support time for now") if sqlite?
     ActiveRecord::Base.connection.create_table("users") do |table|
       table.time :time
     end
