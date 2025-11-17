@@ -43,8 +43,8 @@ module ActiveRecordADBCAdapter
               # Parse time strings from SQLite's format (2000-01-01 HH:MM:SS.SSSSSS) and convert to Time64Array
               # Format is defined in Rails' SQLite3 adapter:
               # https://github.com/rails/rails/blob/90a1eaa1b30ba1f2d524e197460e549c03cf5698/activerecord/lib/active_record/connection_adapters/sqlite3/quoting.rb#L74-L77
-              time_values = column.data.chunks.flat_map do |chunk|
-                chunk.collect do |time_str|
+              chunks = column.data.chunks.collect do |chunk|
+                ruby_array = chunk.collect do |time_str|
                   if time_str.nil?
                     nil
                   else
@@ -52,8 +52,9 @@ module ActiveRecordADBCAdapter
                     (dt.seconds_since_midnight * 1_000_000).to_i
                   end
                 end
+                Arrow::Time64Array.new(:micro, ruby_array)
               end
-              chunked_array = Arrow::ChunkedArray.new([Arrow::Time64Array.new(:micro, time_values)])
+              chunked_array = Arrow::ChunkedArray.new(chunks)
               field = Arrow::Field.new(field.name, Arrow::Time64DataType.new(:micro))
               casted = true
             end
