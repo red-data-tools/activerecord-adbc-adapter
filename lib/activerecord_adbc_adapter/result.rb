@@ -2,10 +2,11 @@ module ActiveRecordADBCAdapter
   class Result
     include Enumerable
 
-    def initialize(backend, table)
+    def initialize(backend, table, adapter)
       @backend = backend
       @table = table
       @schema = @table.schema
+      @adapter = adapter
     end
 
     # This must be called before calling other methods.
@@ -48,8 +49,8 @@ module ActiveRecordADBCAdapter
                   if time_str.nil?
                     nil
                   else
-                    dt = time_str.to_time
-                    (dt.seconds_since_midnight * 1_000_000).to_i
+                    time = time_str.to_time(@adapter.default_timezone)
+                    (time.seconds_since_midnight * 1_000_000).to_i
                   end
                 end
                 Arrow::Time64Array.new(:micro, ruby_array)

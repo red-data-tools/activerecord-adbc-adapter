@@ -207,8 +207,9 @@ class TestType < Test::Unit::TestCase
       table.time :time
     end
     time = ActiveRecord::Type::Time::Value.new(Time.new(2025, 7, 20, 20, 40, 23))
-    User.create!(time: time)
-    value = (time.seconds_since_midnight * 1_000_000).to_i
+    user = User.create!(time: time)
+    # Because DB timezone settings affect the results, adjust the expected values.
+    value = (user.time.seconds_since_midnight * 1_000_000).to_i
     array = Arrow::Time64Array.new(:micro, [value])
     assert_equal(Arrow::Table.new(id: Arrow::Int64Array.new([1]),
                                   time: array),
