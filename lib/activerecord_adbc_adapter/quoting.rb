@@ -15,7 +15,7 @@ module ActiveRecordADBCAdapter
     def quoted_time(value)
       case backend
       when "sqlite"
-        sqlite3_quoting_proxy.quoted_time(value)
+        quoting_sqlite3.quoted_time(value)
       else
         value
       end
@@ -23,8 +23,8 @@ module ActiveRecordADBCAdapter
 
     private
 
-    def sqlite3_quoting_proxy
-      @_sqlite3_quoting_proxy ||= begin
+    def quoting_sqlite3
+      @quoting_sqlite3 ||= begin
         require_relative "quoting/sqlite3"
 
         Quoting::Sqlite3.new(self)
