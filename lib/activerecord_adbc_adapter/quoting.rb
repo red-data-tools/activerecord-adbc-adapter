@@ -1,3 +1,5 @@
+require_relative "quoting/sqlite3"
+
 module ActiveRecordADBCAdapter
   module Quoting
     extend ActiveSupport::Concern
@@ -24,11 +26,7 @@ module ActiveRecordADBCAdapter
     private
 
     def quoting_sqlite3
-      @quoting_sqlite3 ||= begin
-        require_relative "quoting/sqlite3"
-
-        Quoting::Sqlite3.new(self)
-      end
+      @quoting_sqlite3 ||= Quoting::Sqlite3.new(self)
     end
   end
 end
