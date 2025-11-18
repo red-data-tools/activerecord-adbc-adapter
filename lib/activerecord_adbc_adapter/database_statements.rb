@@ -45,7 +45,7 @@ module ActiveRecordADBCAdapter
     end
 
     def cast_result(arrow_table)
-      Result.new(backend, arrow_table)
+      Result.new(backend, arrow_table, self)
     end
 
     # Borrowed from

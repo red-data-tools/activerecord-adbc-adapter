@@ -2,10 +2,11 @@ module ActiveRecordADBCAdapter
   class Result
     include Enumerable
 
-    def initialize(backend, table)
+    def initialize(backend, table, adapter)
       @backend = backend
       @table = table
       @schema = @table.schema
+      @adapter = adapter
     end
 
     # This must be called before calling other methods.
@@ -36,6 +37,30 @@ module ActiveRecordADBCAdapter
             case field.data_type
             when Arrow::StringDataType
               casted_type = Arrow::TimestampDataType.new(:nano)
+            end
+          when :time
+            case field.data_type
+            when Arrow::StringDataType
+              # TODO: Arrow C++ Compute Functions for Time type conversion
+              # https://github.com/red-data-tools/activerecord-adbc-adapter/issues/10
+
+              # Parse time strings from SQLite's format (2000-01-01 HH:MM:SS.SSSSSS) and convert to Time64Array
+              # Format is defined in Rails' SQLite3 adapter:
+              # https://github.com/rails/rails/blob/90a1eaa1b30ba1f2d524e197460e549c03cf5698/activerecord/lib/active_record/connection_adapters/sqlite3/quoting.rb#L74-L77
+              chunks = column.data.chunks.collect do |chunk|
+                ruby_array = chunk.collect do |time_str|
+                  if time_str.nil?
+                    nil
+                  else
+                    time = time_str.to_time(@adapter.default_timezone)
+                    (time.seconds_since_midnight * 1_000_000).to_i
+                  end
+                end
+                Arrow::Time64Array.new(:micro, ruby_array)
+              end
+              chunked_array = Arrow::ChunkedArray.new(chunks)
+              field = Arrow::Field.new(field.name, Arrow::Time64DataType.new(:micro))
+              casted = true
             end
           end
           if casted_type
