@@ -41,6 +41,9 @@ module ActiveRecordADBCAdapter
           when :time
             case field.data_type
             when Arrow::StringDataType
+              # TODO: Arrow C++ Compute Functions for Time type conversion
+              # https://github.com/red-data-tools/activerecord-adbc-adapter/issues/10
+
               # Parse time strings from SQLite's format (2000-01-01 HH:MM:SS.SSSSSS) and convert to Time64Array
               # Format is defined in Rails' SQLite3 adapter:
               # https://github.com/rails/rails/blob/90a1eaa1b30ba1f2d524e197460e549c03cf5698/activerecord/lib/active_record/connection_adapters/sqlite3/quoting.rb#L74-L77
