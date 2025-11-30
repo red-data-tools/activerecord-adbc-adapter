@@ -20,7 +20,7 @@ class TestModel < Test::Unit::TestCase
                    User.new(id: 2),
                    User.new(id: 3),
                  ],
-                 User.select(:id).all)
+                 User.select(:id).all.order(:id))
   end
 
   def test_count
@@ -36,47 +36,57 @@ class TestModel < Test::Unit::TestCase
       record_batch = Arrow::RecordBatch.new(id: id_array)
       User.ingest(record_batch)
       assert_equal((1..6).collect {|id| User.new(id: id)},
-                   User.select(:id).all)
+                   User.select(:id).all.order(:id))
     end
 
     def test_table
       table = Arrow::Table.new(id: id_array)
       User.ingest(table)
       assert_equal((1..6).collect {|id| User.new(id: id)},
-                   User.select(:id).all)
+                   User.select(:id).all.order(:id))
     end
 
     def test_record_batch_reader
       record_batch = Arrow::RecordBatch.new(id: id_array)
       User.ingest(Arrow::RecordBatchReader.new([record_batch]))
       assert_equal((1..6).collect {|id| User.new(id: id)},
-                   User.select(:id).all)
+                   User.select(:id).all.order(:id))
     end
   end
 
   sub_test_case("#to_arrow") do
+    def sort_table(table)
+      table.take(table.sort_indices(:id))
+    end
+
     def test_model
       assert_equal(Arrow::Table.new(id: Arrow::Int64Array.new([1, 2, 3])),
-                   User.to_arrow)
+                   sort_table(User.to_arrow))
     end
 
     def test_relation
       assert_equal(Arrow::Table.new(id: Arrow::Int64Array.new([1, 2, 3])),
-                   User.all.to_arrow)
+                   User.all.order(:id).to_arrow)
     end
   end
 
   sub_test_case("#each_record_batch") do
+    def sort_record_batches(record_batches)
+      record_batches.collect do |record_batch|
+        record_batch.take(record_batch.sort_indices(:id))
+      end
+    end
+
     def test_model
       record_batch = Arrow::RecordBatch.new(id: Arrow::Int64Array.new([1, 2, 3]))
       assert_equal([record_batch],
-                   User.each_record_batch.to_a)
+                   sort_record_batches(User.each_record_batch))
     end
 
     def test_relation
       record_batch = Arrow::RecordBatch.new(id: Arrow::Int64Array.new([1, 2, 3]))
       assert_equal([record_batch],
-                   User.all.each_record_batch.to_a)
+                   User.all.order(:id).each_record_batch.to_a)
     end
   end
 end

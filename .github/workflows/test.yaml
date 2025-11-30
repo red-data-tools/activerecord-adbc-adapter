@@ -58,23 +58,49 @@ jobs:
       - name: Install dependencies
         run: |
           MAKEFLAGS="-j$(nproc)" bundle install --jobs=$(nproc)
-      - name: Prepare test environment
+      - name: "Prepare test environment: SQLite3"
         run: |
           sudo apt install -y -V \
-            libadbc-driver-postgresql-dev \
-            libadbc-driver-sqlite-dev \
-            postgresql
-          sudo systemctl restart postgresql
-          sudo -u postgres -H psql -c "CREATE ROLE ${USER} SUPERUSER LOGIN;"
+            libadbc-driver-sqlite-dev
+          latest_version=
       - name: "Test: SQLite3"
         # We can remove this once ADBC 20 is released.
         continue-on-error: true
         run: |
           bundle exec rake
+      - name: "Prepare test environment: PostgreSQL"
+        run: |
+          sudo apt install -y -V \
+            libadbc-driver-postgresql-dev \
+            postgresql
+          sudo systemctl restart postgresql
+          sudo -u postgres -H psql -c "CREATE ROLE ${USER} SUPERUSER LOGIN;"
       - name: "Test: PostgreSQL"
         env:
           ACTIVERECORD_ADBC_ADAPTER_BACKEND: postgresql
           PGHOST: /var/run/postgresql
+        run: |
+          bundle exec rake
+      - name: "Prepare test environment: DuckDB"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          latest_tag=$(gh release list \
+                         --exclude-drafts \
+                         --exclude-pre-releases \
+                         --jq '.[].tagName' \
+                         --json tagName \
+                         --limit 1 \
+                         --repo duckdb/duckdb)
+          wget \
+            --output-document libduckdb.zip \
+            --no-verbose \
+            https://github.com/duckdb/duckdb/releases/download/${latest_tag}/libduckdb-linux-amd64.zip
+          unzip libduckdb.zip
+          sudo mv libduckdb.so /usr/lib/
+      - name: "Test: DuckDB"
+        env:
+          ACTIVERECORD_ADBC_ADAPTER_BACKEND: duckdb
         run: |
           bundle exec rake
       - name: Install benchmark dependencies
