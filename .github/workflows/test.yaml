@@ -32,29 +32,6 @@ jobs:
         # We can't use "bundler-cache: true" with ruby/setup-ruby
         # because it doesn't cache dependencies installed by
         # rubygems-requirements-system automatically.
-      # This is a workaround until ADBC 20 is released.
-      # See also: https://github.com/apache/arrow-adbc/issues/3178
-      - name: Install the specific version of Apache Arrow
-        run: |
-          sudo apt update
-          sudo apt install -y -V ca-certificates lsb-release wget
-          wget https://packages.apache.org/artifactory/arrow/$(lsb_release --id --short | tr 'A-Z' 'a-z')/apache-arrow-apt-source-latest-$(lsb_release --codename --short).deb
-          sudo apt install -y -V ./apache-arrow-apt-source-latest-$(lsb_release --codename --short).deb
-          sudo apt update
-          arrow_version=20.0.0
-          adbc_version=19
-          sudo apt install -y -V \
-            gir1.2-adbc-1.0=${adbc_version}-1 \
-            gir1.2-adbc-arrow-1.0=${adbc_version}-1 \
-            gir1.2-arrow-1.0=${arrow_version}-1 \
-            libadbc-arrow-glib-dev=${adbc_version}-1 \
-            libadbc-driver-manager-dev=${adbc_version}-1 \
-            libadbc-glib-dev=${adbc_version}-1 \
-            libadbc-glib-dev=${adbc_version}-1 \
-            libarrow-acero-dev=${arrow_version}-1 \
-            libarrow-dev=${arrow_version}-1 \
-            libarrow-glib-dev=${arrow_version}-1 \
-            libparquet-dev=${arrow_version}-1
       - name: Install dependencies
         run: |
           MAKEFLAGS="-j$(nproc)" bundle install --jobs=$(nproc)
@@ -64,8 +41,6 @@ jobs:
             libadbc-driver-sqlite-dev
           latest_version=
       - name: "Test: SQLite3"
-        # We can remove this once ADBC 20 is released.
-        continue-on-error: true
         run: |
           bundle exec rake
       - name: "Prepare test environment: PostgreSQL"
