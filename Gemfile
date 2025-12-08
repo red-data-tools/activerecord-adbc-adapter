@@ -39,8 +39,5 @@ if File.exist?(local_adbc)
     gem "red-adbc"
   end
 else
-  # This is a workaround until ADBC 20 is released.
-  # See also: https://github.com/apache/arrow-adbc/issues/3178
-  gem "red-arrow", "< 21.0.0"
   gem "red-adbc"
 end
