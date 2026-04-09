@@ -10,6 +10,22 @@ module ActiveRecordADBCAdapter
       end
     end
 
+    def quote_column_name(column_name)
+      if backend == "bigquery"
+        "`#{column_name.to_s.gsub('`', '\\`')}`"
+      else
+        self.class.quote_column_name(column_name)
+      end
+    end
+
+    def quote_table_name(table_name)
+      if backend == "bigquery"
+        "`#{table_name.to_s.gsub('`', '\\`')}`"
+      else
+        self.class.quote_table_name(table_name)
+      end
+    end
+
     def quoted_date(value)
       value
     end

@@ -10,6 +10,12 @@ class TestModel < Test::Unit::TestCase
                     ])
   end
 
+  teardown do
+    if bigquery?
+      ActiveRecord::Base.connection.drop_table("users", if_exists: true)
+    end
+  end
+
   def test_first
     assert_equal(User.new(id: 1), User.select(:id).first)
   end
@@ -28,6 +34,10 @@ class TestModel < Test::Unit::TestCase
   end
 
   sub_test_case(".ingest") do
+    setup do
+      omit("BigQuery doesn't support ADBC ingest") if bigquery?
+    end
+
     def id_array
       Arrow::Int64Array.new([4, 5, 6])
     end
