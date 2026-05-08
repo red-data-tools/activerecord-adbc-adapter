@@ -68,6 +68,13 @@ class TestModel < Test::Unit::TestCase
       assert_equal(Arrow::Table.new(id: Arrow::Int64Array.new([1, 2, 3])),
                    User.all.order(:id).to_arrow)
     end
+
+    def test_non_adbc_connection_raises
+      relation = User.all
+      relation.singleton_class.define_method(:adbc_connection?) { false }
+      error = assert_raise(NoMethodError) { relation.to_arrow }
+      assert_match(/only available on ADBC/, error.message)
+    end
   end
 
   sub_test_case("#each_record_batch") do
