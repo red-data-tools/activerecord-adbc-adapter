@@ -68,6 +68,16 @@ class TestModel < Test::Unit::TestCase
       assert_equal(Arrow::Table.new(id: Arrow::Int64Array.new([1, 2, 3])),
                    User.all.order(:id).to_arrow)
     end
+
+    def test_red_arrow_activerecord
+      omit("Red Arrow Active Record isn't enabled for DuckDB") if duckdb?
+      table = RawUser.all.order(:id).to_arrow(batch_size: 2)
+      assert_equal([
+                     Arrow::RecordBatch.new(id: Arrow::Int64Array.new([1, 2])),
+                     Arrow::RecordBatch.new(id: Arrow::Int64Array.new([3])),
+                   ],
+                   table.each_record_batch.to_a)
+    end
   end
 
   sub_test_case("#each_record_batch") do
@@ -78,15 +88,25 @@ class TestModel < Test::Unit::TestCase
     end
 
     def test_model
-      record_batch = Arrow::RecordBatch.new(id: Arrow::Int64Array.new([1, 2, 3]))
-      assert_equal([record_batch],
+      ids = Arrow::Int64Array.new([1, 2, 3])
+      assert_equal([Arrow::RecordBatch.new(id: ids)],
                    sort_record_batches(User.each_record_batch))
     end
 
     def test_relation
-      record_batch = Arrow::RecordBatch.new(id: Arrow::Int64Array.new([1, 2, 3]))
-      assert_equal([record_batch],
+      ids = Arrow::Int64Array.new([1, 2, 3])
+      assert_equal([Arrow::RecordBatch.new(id: ids)],
                    User.all.order(:id).each_record_batch.to_a)
+    end
+
+    def test_red_arrow_activerecord
+      omit("Red Arrow Active Record isn't enabled for DuckDB") if duckdb?
+      query = RawUser.all.order(:id)
+      assert_equal([
+                     Arrow::RecordBatch.new(id: Arrow::Int64Array.new([1, 2])),
+                     Arrow::RecordBatch.new(id: Arrow::Int64Array.new([3]))
+                   ],
+                   query.each_record_batch(batch_size: 2).to_a)
     end
   end
 end

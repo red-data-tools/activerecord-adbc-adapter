@@ -21,6 +21,7 @@ group :benchmark do
 end
 
 group :test do
+  gem "sqlite3"
   gem "test-unit"
 end
 

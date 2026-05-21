@@ -1,15 +1,25 @@
+require "arrow-activerecord"
+
 module ActiveRecordADBCAdapter
   module RelationArrowable
-    def to_arrow
-      result = exec_main_query
-      result.attach_model(model)
-      result.to_arrow
+    def to_arrow(...)
+      if model.adapter_class == Adapter
+        result = exec_main_query
+        result.attach_model(model)
+        result.to_arrow
+      else
+        super
+      end
     end
 
-    def each_record_batch(&block)
-      result = exec_main_query
-      result.attach_model(model)
-      result.each_record_batch(&block)
+    def each_record_batch(*, **, &block)
+      if model.adapter_class == Adapter
+        result = exec_main_query
+        result.attach_model(model)
+        result.each_record_batch(&block)
+      else
+        super
+      end
     end
   end
 
