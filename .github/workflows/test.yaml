@@ -19,6 +19,7 @@ jobs:
           - "3.2"
           - "3.3"
           - "3.4"
+          - "4.0"
         runs-on:
           # - macos-latest
           - ubuntu-latest
@@ -32,18 +33,25 @@ jobs:
         # We can't use "bundler-cache: true" with ruby/setup-ruby
         # because it doesn't cache dependencies installed by
         # rubygems-requirements-system automatically.
+        #
+        # Ruby 4.0 is allowed to fail for now: installing red-adbc fails under
+        # it with Bundler 4.x.
       - name: Install dependencies
+        continue-on-error: ${{ matrix.ruby-version == '4.0' }}
         run: |
           MAKEFLAGS="-j$(nproc)" bundle install --jobs=$(nproc)
       - name: "Prepare test environment: SQLite3"
+        continue-on-error: ${{ matrix.ruby-version == '4.0' }}
         run: |
           sudo apt install -y -V \
             libadbc-driver-sqlite-dev
           latest_version=
       - name: "Test: SQLite3"
+        continue-on-error: ${{ matrix.ruby-version == '4.0' }}
         run: |
           bundle exec rake
       - name: "Prepare test environment: PostgreSQL"
+        continue-on-error: ${{ matrix.ruby-version == '4.0' }}
         run: |
           sudo apt install -y -V \
             libadbc-driver-postgresql-dev \
@@ -51,12 +59,14 @@ jobs:
           sudo systemctl restart postgresql
           sudo -u postgres -H psql -c "CREATE ROLE ${USER} SUPERUSER LOGIN;"
       - name: "Test: PostgreSQL"
+        continue-on-error: ${{ matrix.ruby-version == '4.0' }}
         env:
           ACTIVERECORD_ADBC_ADAPTER_BACKEND: postgresql
           PGHOST: /var/run/postgresql
         run: |
           bundle exec rake
       - name: "Prepare test environment: DuckDB"
+        continue-on-error: ${{ matrix.ruby-version == '4.0' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -74,11 +84,13 @@ jobs:
           unzip libduckdb.zip
           sudo mv libduckdb.so /usr/lib/
       - name: "Test: DuckDB"
+        continue-on-error: ${{ matrix.ruby-version == '4.0' }}
         env:
           ACTIVERECORD_ADBC_ADAPTER_BACKEND: duckdb
         run: |
           bundle exec rake
       - name: Install benchmark dependencies
+        continue-on-error: ${{ matrix.ruby-version == '4.0' }}
         run: |
           # We can use this with ubuntu-26.04.
           # sudo apt install -y -V \
@@ -99,11 +111,13 @@ jobs:
           tar xvf gr.tar.gz
           echo "GRDIR=${PWD}/gr" >> "${GITHUB_ENV}"
       - name: Benchmark
+        continue-on-error: ${{ matrix.ruby-version == '4.0' }}
         env:
           PGHOST: /var/run/postgresql
         run: |
           bundle exec benchmark/load-dump.rb
       - uses: actions/upload-artifact@v7
+        continue-on-error: ${{ matrix.ruby-version == '4.0' }}
         with:
           name: benchmark-ruby-${{ matrix.ruby-version }}
           path: |
