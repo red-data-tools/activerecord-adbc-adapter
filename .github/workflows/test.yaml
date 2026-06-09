@@ -85,9 +85,13 @@ jobs:
           #   gr-framework-plugin-base \
           #   gr-framework-plugin-full \
           #   libgr-framework-dev
-          latest_gr_tag=$(curl https://api.github.com/repos/sciapp/gr/tags | \
-                            jq -r '.[].name' | \
-                            head -n 1)
+          #
+          # Pin GR until the grm_export fix (sciapp/gr#204, #205) ships in
+          # a release; then drop the pin and restore the latest-tag lookup.
+          # latest_gr_tag=$(curl https://api.github.com/repos/sciapp/gr/tags | \
+          #                   jq -r '.[].name' | \
+          #                   head -n 1)
+          latest_gr_tag=v0.73.22
           latest_gr_version=${latest_gr_tag#v}
           wget \
             --output-document gr.tar.gz \
