@@ -23,4 +23,5 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency("activerecord", ">= 8.1.0")
   spec.add_runtime_dependency("red-adbc")
+  spec.add_runtime_dependency("red-arrow-activerecord", ">= 0.1.4")
 end

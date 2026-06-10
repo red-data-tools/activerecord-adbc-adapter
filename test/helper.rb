@@ -40,6 +40,7 @@ module Helper
     def setup_connection
       suffix = nil
       database = "ar_adbc_test"
+      ar_adapter_name = nil
       case backend
       when "duckdb"
         suffix = ".duckdb"
@@ -55,6 +56,9 @@ module Helper
         }
         ar_adapter_name = "postgresql"
         ar_adapter_options = {
+          database: database,
+        }
+        ar_adapter_create_database_options = {
           database: "postgres",
         }
         ar_create_database_options = {
@@ -66,13 +70,24 @@ module Helper
         options = {
           driver: "adbc_driver_sqlite",
         }
+        ar_adapter_name = "sqlite3"
+        ar_adapter_options = {
+          database: nil,
+        }
       end
       setup = lambda do
         ActiveRecord::Base.establish_connection(adapter: "adbc", **options)
+        if ar_adapter_name
+          ar_adapter_options[:database] ||= @db_path
+          RawUser.establish_connection(adapter: ar_adapter_name,
+                                       **ar_adapter_options)
+        end
         begin
           yield
         ensure
           User.reset_column_information
+          RawUser.reset_column_information
+          RawUser.connection_handler.clear_all_connections!
           ActiveRecord::Base.connection_handler.clear_all_connections!
         end
       end
@@ -85,7 +100,7 @@ module Helper
         end
       else
         adapter_class = ActiveRecord::ConnectionAdapters.resolve(ar_adapter_name)
-        adapter = adapter_class.new(ar_adapter_options)
+        adapter = adapter_class.new(ar_adapter_create_database_options)
         adapter.drop_database(database)
         adapter.create_database(database, **ar_create_database_options)
         setup.call
