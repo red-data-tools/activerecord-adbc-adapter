@@ -19,6 +19,7 @@ jobs:
           - "3.2"
           - "3.3"
           - "3.4"
+          - "4.0"
         runs-on:
           # - macos-latest
           - ubuntu-latest
@@ -34,7 +35,19 @@ jobs:
         # rubygems-requirements-system automatically.
       - name: Install dependencies
         run: |
-          MAKEFLAGS="-j$(nproc)" bundle install --jobs=$(nproc)
+          # Ruby 4.0 ships Bundler 4.x, which installs pure-ruby gems before
+          # their native-extension dependencies finish building. red-adbc
+          # (pure-ruby) then runs rubygems-requirements-system's pre_install
+          # hook and requests libadbc-glib-dev before red-arrow has registered
+          # the Apache Arrow APT repository, so "bundle install" fails. Disable
+          # parallel install on 4.0 to restore dependency order; drop this once
+          # the upstream fix ships.
+          # https://github.com/apache/arrow-adbc/pull/4393
+          jobs=$(nproc)
+          if [ "${{ matrix.ruby-version }}" = "4.0" ]; then
+            jobs=1
+          fi
+          MAKEFLAGS="-j$(nproc)" bundle install --jobs="${jobs}"
       - name: "Prepare test environment: SQLite3"
         run: |
           sudo apt install -y -V \
