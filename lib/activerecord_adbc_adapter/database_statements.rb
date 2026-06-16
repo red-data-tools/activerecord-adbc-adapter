@@ -14,7 +14,7 @@ module ActiveRecordADBCAdapter
         else
           statement.prepare
           raw_records = {}
-          binds.zip(type_casted_binds) do |bind, type_casted_bind|
+          binds.zip(type_casted_binds).each_with_index do |(bind, type_casted_bind), i|
             case type_casted_bind
             when String
               if type_casted_bind.encoding == Encoding::ASCII_8BIT
@@ -34,7 +34,10 @@ module ActiveRecordADBCAdapter
             else
               array = [type_casted_bind]
             end
-            raw_records[bind.name] = array
+            # Some binds (e.g. BETWEEN range values) aren't QueryAttributes and
+            # have no #name. Position `i` is the real key; name just aids debugging.
+            name = bind.respond_to?(:name) ? bind.name : "p"
+            raw_records["#{i}_#{name}"] = array
           end
           record_batch = Arrow::RecordBatch.new(raw_records)
           statement.bind(record_batch) do

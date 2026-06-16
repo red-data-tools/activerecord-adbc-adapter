@@ -27,6 +27,34 @@ class TestModel < Test::Unit::TestCase
     assert_equal(3, User.count)
   end
 
+  def test_where_range_between
+    assert_equal(2, User.where(id: 1..2).count)
+  end
+
+  def test_where_range_between_exclusive_end
+    assert_equal(1, User.where(id: 1...2).count)
+  end
+
+  def test_where_raw_sql_fragment
+    assert_equal(2, User.where("id >= ?", 2).count)
+  end
+
+  def test_where_in_array
+    assert_equal(3, User.where(id: [1, 2, 3]).count)
+  end
+
+  def test_where_mixed_range_and_raw
+    assert_equal(1, User.where(id: 1..2).where("id < ?", 2).count)
+  end
+
+  def test_limit
+    assert_equal(2, User.order(:id).limit(2).to_a.size)
+  end
+
+  def test_offset
+    assert_equal(1, User.order(:id).limit(2).offset(2).to_a.size)
+  end
+
   sub_test_case(".ingest") do
     def id_array
       Arrow::Int64Array.new([4, 5, 6])
