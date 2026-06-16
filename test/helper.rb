@@ -23,6 +23,10 @@ module Helper
       ENV["ACTIVERECORD_ADBC_ADAPTER_BACKEND"]
     end
 
+    def bigquery?
+      backend == "bigquery"
+    end
+
     def duckdb?
       backend == "duckdb"
     end
@@ -32,6 +36,7 @@ module Helper
     end
 
     def sqlite?
+      return false if bigquery?
       return false if duckdb?
       return false if postgresql?
       true
@@ -42,6 +47,14 @@ module Helper
       database = "ar_adbc_test"
       ar_adapter_name = nil
       case backend
+      when "bigquery"
+        options = {
+          driver: "adbc_driver_bigquery",
+          "adbc.bigquery.sql.project_id":
+            ENV.fetch("GOOGLE_CLOUD_PROJECT"),
+          "adbc.bigquery.sql.dataset_id":
+            ENV.fetch("BIGQUERY_DATASET", "adbc_test"),
+        }
       when "duckdb"
         suffix = ".duckdb"
         path_key = :path
@@ -98,6 +111,13 @@ module Helper
           options[path_key] = @db_path
           setup.call
         end
+      elsif bigquery?
+        # Ideally we'd create/drop a temporary dataset per test run
+        # (like PostgreSQL creates/drops a database), but the ADBC
+        # BigQuery driver requires dataset_id for all SQL execution
+        # — even CREATE SCHEMA fails without it. So we reuse an
+        # existing dataset and drop tables in teardown instead.
+        setup.call
       else
         adapter_class = ActiveRecord::ConnectionAdapters.resolve(ar_adapter_name)
         adapter = adapter_class.new(ar_adapter_create_database_options)

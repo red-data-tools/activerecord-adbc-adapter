@@ -1,6 +1,18 @@
 class TestType < Test::Unit::TestCase
   include Helper::Sandbox
 
+  setup do
+    if bigquery?
+      omit("BigQuery type tests are not yet implemented")
+    end
+  end
+
+  teardown do
+    if bigquery?
+      ActiveRecord::Base.connection.drop_table("users", if_exists: true)
+    end
+  end
+
   def test_boolean_active_record
     ActiveRecord::Base.connection.create_table("users") do |table|
       table.boolean :boolean

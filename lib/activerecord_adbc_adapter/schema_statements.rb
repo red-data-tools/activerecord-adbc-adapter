@@ -1,6 +1,9 @@
 module ActiveRecordADBCAdapter
   module SchemaStatements
     NATIVE_DATABASE_TYPES = {
+      "bigquery" => {
+        primary_key: "INT64 PRIMARY KEY NOT ENFORCED",
+      },
       "duckdb" => {
         primary_key: "bigint PRIMARY KEY",
       },

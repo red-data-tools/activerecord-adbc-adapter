@@ -141,9 +141,14 @@ module ActiveRecordADBCAdapter
     #
     # The MIT license.
     def build_insert_sql(insert)
-      sql = +"INSERT #{insert.into} #{insert.values_list}"
+      into = insert.into
+      if backend == "bigquery"
+        into = into.sub(insert.model.quoted_table_name,
+                        quote_table_name(insert.model.table_name))
+      end
+      sql = +"INSERT #{into} #{insert.values_list}"
 
-      if insert.skip_duplicates?
+      if insert.skip_duplicates? && backend != "bigquery"
         sql << " ON CONFLICT #{insert.conflict_target} DO NOTHING"
       elsif insert.update_duplicates?
         sql << " ON CONFLICT #{insert.conflict_target} DO UPDATE SET "
@@ -198,6 +203,10 @@ module ActiveRecordADBCAdapter
     end
 
     def detect_features_postgresql
+      @features[:supports_insert_on_duplicate_skip] = true
+    end
+
+    def detect_features_bigquery
       @features[:supports_insert_on_duplicate_skip] = true
     end
 

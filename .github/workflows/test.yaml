@@ -25,6 +25,9 @@ jobs:
           - ubuntu-latest
           # - windows-latest
     runs-on: ${{ matrix.runs-on }}
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v6
       - uses: ruby/setup-ruby@v1
@@ -91,6 +94,36 @@ jobs:
           ACTIVERECORD_ADBC_ADAPTER_BACKEND: duckdb
         run: |
           bundle exec rake
+      # BigQuery tests run on a single Ruby version to avoid conflicts.
+      # All matrix jobs share the same dataset, so parallel runs would
+      # interfere with each other (e.g. concurrent CREATE/DROP TABLE).
+      - name: Authenticate to Google Cloud
+        if: matrix.ruby-version == '3.4'
+        id: gcp-auth
+        uses: google-github-actions/auth@v3
+        continue-on-error: true
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      - name: "Prepare test environment: BigQuery"
+        if: matrix.ruby-version == '3.4' && steps.gcp-auth.outcome == 'success'
+        uses: columnar-tech/setup-dbc@v1
+        with:
+          drivers: bigquery
+      - name: "Set LD_LIBRARY_PATH for BigQuery driver"
+        if: matrix.ruby-version == '3.4' && steps.gcp-auth.outcome == 'success'
+        run: |
+          driver_dir=$(dirname "$(find ~/.config/adbc/drivers -name 'libadbc_driver_bigquery.so' -print -quit)")
+          echo "LD_LIBRARY_PATH=${driver_dir}:${LD_LIBRARY_PATH}" >> "${GITHUB_ENV}"
+      - name: "Test: BigQuery"
+        if: matrix.ruby-version == '3.4' && steps.gcp-auth.outcome == 'success'
+        continue-on-error: true
+        env:
+          ACTIVERECORD_ADBC_ADAPTER_BACKEND: bigquery
+          GOOGLE_CLOUD_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
+          BIGQUERY_DATASET: adbc_test
+        run: |
+          bundle exec ruby test/run.rb --testcase=TestModel
       - name: Install benchmark dependencies
         run: |
           # We can use this with ubuntu-26.04.
