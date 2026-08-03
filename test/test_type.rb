@@ -39,6 +39,17 @@ class TestType < Test::Unit::TestCase
                  User.to_arrow)
   end
 
+  def test_bigint_explicit_limit
+    omit("Only SQLite stores the declared type as-is") unless sqlite?
+    ActiveRecord::Base.connection.create_table("users") do |table|
+      table.bigint :bigint, limit: 4
+    end
+    assert_equal(4, User.columns_hash["bigint"].limit)
+    assert_raise(ActiveModel::RangeError) do
+      User.create!(bigint: 2 ** 32)
+    end
+  end
+
   def test_integer_active_record
     ActiveRecord::Base.connection.create_table("users") do |table|
       table.integer :integer
