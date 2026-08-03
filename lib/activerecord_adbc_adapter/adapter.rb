@@ -82,6 +82,10 @@ module ActiveRecordADBCAdapter
       private
       def initialize_type_map(m)
         super
+        # Without this, a bigint column is limited to 4 bytes and writing a
+        # larger value raises RangeError. AbstractAdapter takes the limit from
+        # "(...)" in the type name, and drivers report bigint without it
+        # ("BIGINT" on DuckDB, "int8" on PostgreSQL).
         m.register_type(/\A(?:bigint|int8)\b/i) do |sql_type|
           limit = extract_limit(sql_type) || 8
           ActiveRecord::Type::Integer.new(limit: limit).freeze
